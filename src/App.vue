@@ -14,7 +14,7 @@
     </b-container>
     <footer>
       <a href="https://zillow.com" target="_blank" rel="noopener noreferrer">
-        <img src="http://www.zillow.com/widgets/GetVersionedResource.htm?path=/static/logos/Zillowlogo_200x50.gif" width="200" height="50" alt="Zillow Real Estate Search">
+        <img src="https://www.zillow.com/widgets/GetVersionedResource.htm?path=/static/logos/Zillowlogo_200x50.gif" width="200" height="50" alt="Zillow Real Estate Search">
       </a>
     </footer>
   </div>
