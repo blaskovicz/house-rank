@@ -1,18 +1,32 @@
 <template>
   <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/>
+    <div v-show="!apiState.principal" id="google-signin-button"></div>
+    <b-button @click="signOut" size='sm' variant='outline-secondary' v-show="apiState.principal" id="google-signout-button">Sign Out</b-button>
+    <house-rank-app v-if="apiState.principal" :google-user="apiState.principal" />
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
-import HelloWorld from '@/components/HelloWorld.vue'; // @ is an alias to /src
+import { Component, Vue } from "vue-property-decorator";
+import Api from "../lib/Api";
+import HouseRankApp from "@/components/HouseRankApp.vue";
 
 @Component({
   components: {
-    HelloWorld,
-  },
+    HouseRankApp
+  }
 })
-export default class Home extends Vue {}
+export default class Home extends Vue {
+  // so Vue can be notified of changes
+  apiState = Api.state;
+  onSignIn(user: any) {
+    Api.onSignIn(user);
+  }
+  signOut() {
+    Api.signOut();
+  }
+  mounted() {
+    Api.renderSignIn("google-signin-button");
+  }
+}
 </script>

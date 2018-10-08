@@ -1,13 +1,23 @@
 {
   "name": "house-rank",
-  "version": "0.1.0",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/blaskovicz/house-rank",
+  "author": "Zach Auclair",
+  "license": "MIT",
   "private": true,
+  "engines": {
+    "node": "^8.x"
+  },
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "start": "serve -s dist -p ${PORT:-3000}"
   },
   "dependencies": {
+    "bootstrap-vue": "^2.0.0-rc.11",
+    "serve": "^10.0.2",
     "vue": "^2.5.17",
     "vue-class-component": "^6.0.0",
     "vue-property-decorator": "^7.0.0",
@@ -18,6 +28,8 @@
     "@vue/cli-service": "^3.0.4",
     "node-sass": "^4.9.0",
     "sass-loader": "^7.0.1",
+    "tslint-config-airbnb": "^5.11.0",
+    "tslint-config-prettier": "^1.15.0",
     "typescript": "^3.0.0",
     "vue-template-compiler": "^2.5.17"
   }

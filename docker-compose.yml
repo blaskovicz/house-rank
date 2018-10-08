@@ -1,0 +1,11 @@
+version: "3.3"
+
+services:
+  web:
+    image: 127.0.0.1:5000/house-rank
+    build: .
+    environment:
+      NODE_ENV: production
+      LOG_LEVEL: info
+    ports:
+      - "4096:4096"
