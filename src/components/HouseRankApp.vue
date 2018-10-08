@@ -312,6 +312,7 @@ export default class HouseRankApp extends Vue {
           { name: "default" }
         );
         this.houseList = resData.createHouseList;
+        this.$router.push(`/${this.houseList.id}`);
       }
       const hasHouse = (this.houseList.houses as any[]).find(
         (h: any) => h.zpid === zpid
