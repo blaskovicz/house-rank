@@ -40,6 +40,10 @@ export default new class HouseRankApi {
     }
   ): Promise<any> {
     if (!apiUrl) throw new Error("Assertion failure: apiUrl missing");
+    let apiPrefix = "";
+    if (process.env.VUE_APP_API_PREFIX && apiUrl.startsWith("/")) {
+      apiPrefix = process.env.VUE_APP_API_PREFIX;
+    }
 
     let query = "";
     let method = "GET";
@@ -73,7 +77,7 @@ export default new class HouseRankApi {
       }
     }
 
-    const res = await fetch(`${apiUrl}?${query}`, {
+    const res = await fetch(`${apiPrefix}${apiUrl}?${query}`, {
       method,
       body,
       headers
