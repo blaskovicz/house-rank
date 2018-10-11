@@ -1,9 +1,17 @@
 <template>
   <div id='app-wrapper'>
+    <b-modal title='Request Error' header-text-variant='light' header-bg-variant='danger' v-model="responseError" @ok="dismissResponseError">
+      {{responseString}}
+       <div slot="modal-footer" class="w-100">
+         <b-btn size="sm" class="float-right" @click="dismissResponseError">
+           OK
+         </b-btn>
+       </div>
+    </b-modal>
     <b-tabs>
       <!-- TODO <house-list-select /> -->
       <b-tab title='Houses'>
-        <house-search @house-selected="addHouse" />
+        <house-search @house-selected="addHouse" @response-error="displayResponseError" />
         <house-list v-if="houseList" @house-removed="removeHouse" :houses="houseList.houses" />
       </b-tab>
       <!-- TODO <house-ranking-rules /> -->
@@ -160,7 +168,27 @@ export default class HouseRankApp extends Vue {
   $router!: VueRouter;
   $route!: Route;
   listState: any = null;
+  responseError: boolean = false;
+  responseString: string = "";
+  displayResponseError(e: any) {
+    console.warn("displayResponseError", e);
+    this.responseString = "An error occurred. ";
 
+    if (e) {
+      if (e.errors) {
+        this.responseString += e.errors
+          .map((error: any) => error.message)
+          .join(". ");
+      } else {
+        this.responseString += JSON.stringify(e, null, " ");
+      }
+    }
+    this.responseError = true;
+  }
+  dismissResponseError() {
+    this.responseString = "";
+    this.responseError = false;
+  }
   beforeRouteUpdate(to: Route, from: Route, next: Function) {
     next();
   }
@@ -236,7 +264,7 @@ export default class HouseRankApp extends Vue {
         }
       }
     } catch (e) {
-      console.warn(e);
+      this.displayResponseError(e);
     }
   }
   async removeMember(userId: number) {
@@ -256,7 +284,7 @@ export default class HouseRankApp extends Vue {
       this.houseList.members.splice(toSplice, 1);
       this.houseList = this.houseList;
     } catch (e) {
-      console.warn(e);
+      this.displayResponseError(e);
     }
   }
   async addMember(email: string) {
@@ -273,12 +301,12 @@ export default class HouseRankApp extends Vue {
       this.houseList.members.push(resData.addUserToList);
       this.houseList = this.houseList;
     } catch (e) {
-      console.warn(e);
+      this.displayResponseError(e);
     }
   }
 
   async removeHouse(zpid: string) {
-    // remove house, update l      // add house, update list
+    // remove house, update list
     try {
       const resData = await Api.graphqlRequest(
         `mutation RemoveHouseFromList($listId: Int!, $zpid: String!) {
@@ -295,7 +323,7 @@ export default class HouseRankApp extends Vue {
       this.houseList.houses.splice(toSplice, 1);
       this.houseList = this.houseList;
     } catch (e) {
-      console.warn(e);
+      this.displayResponseError(e);
     }
   }
   async addHouse(zpid: string) {
@@ -337,7 +365,7 @@ export default class HouseRankApp extends Vue {
       this.houseList.houses.push(resData.addHouseToList);
       this.houseList = this.houseList;
     } catch (e) {
-      console.warn(e);
+      this.displayResponseError(e);
     }
   }
 }

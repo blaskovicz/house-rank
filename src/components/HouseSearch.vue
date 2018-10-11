@@ -55,6 +55,10 @@ export default class HouseSearch extends Vue {
   cancelSearch() {
     this.results = [];
   }
+  @Emit()
+  responseError(e: any) {
+    return e;
+  }
   async searchHouses() {
     try {
       const resBody = await Api.request("/api/v1/zillow/properties", {
@@ -72,7 +76,7 @@ export default class HouseSearch extends Vue {
         state: p.address[0].state[0]
       }));
     } catch (e) {
-      console.warn(e);
+      this.responseError(e);
     }
   }
 }
