@@ -10,11 +10,12 @@
       <template slot="score" slot-scope="data">
         <div :id="'score-' + data.item.zillowId">{{data.item.score.toFixed(2)}}</div>
         <b-popover title='About this Score' :target="'score-' + data.item.zillowId" triggers="hover focus">
-          <ul>
-            <li v-for="ex in data.item.scoreExplanation" :key="ex.scorePart+' '+ex.reason">
-              <b>{{ex.scorePart.toFixed(2)}}/{{ex.scoreMax}}</b>: {{ex.reason}}
-            </li>
-          </ul>
+          <table class='score-table'>
+            <tr v-for="ex in data.item.scoreExplanation" :key="ex.scorePart+' '+ex.reason">
+              <td><div class='score-part'><b>{{ex.scorePart.toFixed(2)}}/{{ex.scoreMax}}</b>:</div></td>
+              <td><div class='score-reason'>{{ex.reason}}</div></td>
+            </tr>
+          </table>
         </b-popover>
       </template>      
       <template slot="price" slot-scope="data">
@@ -176,13 +177,13 @@ function scoreHouses(houses: HouseTableModel[]) {
     };
   } = {
     price: { score: 30 },
-    priceAppraised: { score: 10 },
+    priceAppraised: { score: 15 },
     bedrooms: { score: 10 },
     bathrooms: { score: 10 },
-    acreage: { score: 10 },
-    livingArea: { score: 10 },
+    acreage: { score: 20 },
+    livingArea: { score: 20 },
     taxPaid: { score: 10 },
-    yearBuilt: { score: 10 }
+    yearBuilt: { score: 15 }
   };
 
   // first, build lookup for numeric stats, keyed by column
@@ -202,7 +203,7 @@ function scoreHouses(houses: HouseTableModel[]) {
       if (stats.avg[key] === undefined) {
         stats.avg[key] = 0;
         stats.max[key] = 0;
-        stats.min[key] = 0;
+        stats.min[key] = Number.MAX_VALUE;
       }
 
       // new max
@@ -267,11 +268,10 @@ function scoreHouses(houses: HouseTableModel[]) {
         );
       }
 
-      // TODO this doesnt seem right
       addToScore(
-        statPoints[sharedBestStat].score -
-          (h[sharedBestStat] * statPoints[sharedBestStat].score) /
-            stats.max[sharedBestStat],
+        ((stats.max[sharedBestStat] - h[sharedBestStat]) *
+          statPoints[sharedBestStat].score) /
+          (stats.max[sharedBestStat] - stats.min[sharedBestStat]),
         statPoints[sharedBestStat].score,
         `least ${parseUpperCamelCase(sharedBestStat)}`
       );
@@ -333,6 +333,9 @@ export default class HouseList extends Vue {
   .for-sale-status {
     background: #efefef;
     font-size: 10pt;
+  }
+  .score-table {
+    table-layout: fixed;
   }
 }
 </style>
