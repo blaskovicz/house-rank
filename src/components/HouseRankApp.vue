@@ -1,11 +1,17 @@
 <template>
-  <div>
-    <!-- TODO <house-list-select /> -->
-    <house-search @house-selected="addHouse" />
-    <house-list v-if="houseList" @house-removed="removeHouse" :houses="houseList.houses" />
-    <!-- TODO <house-ranking-rules /> -->
-    <house-list-member-search @member-selected="addMember" />
-    <house-list-members v-if="houseList" @member-removed="removeMember" :members="houseList.members" />
+  <div id='app-wrapper'>
+    <b-tabs>
+      <!-- TODO <house-list-select /> -->
+      <b-tab title='Houses'>
+        <house-search @house-selected="addHouse" />
+        <house-list v-if="houseList" @house-removed="removeHouse" :houses="houseList.houses" />
+      </b-tab>
+      <!-- TODO <house-ranking-rules /> -->
+      <b-tab title="List Members">
+        <house-list-member-search @member-selected="addMember" />
+        <house-list-members v-if="houseList" @member-removed="removeMember" :members="houseList.members" />
+      </b-tab>
+    </b-tabs>
   </div>
 </template>
 
@@ -338,4 +344,7 @@ export default class HouseRankApp extends Vue {
 </script>
 
 <style scoped lang="scss">
+#app-wrapper {
+  margin-bottom: 5em;
+}
 </style>

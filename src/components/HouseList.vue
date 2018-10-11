@@ -1,117 +1,173 @@
 <template>
   <div id="houses">
-    <b-table responsive striped hover small :items="houses" :fields="fields">
+    <b-table responsive striped hover small :items="tableModel" :fields="fields">
       <template slot="image" slot-scope="data">
-        <a target="_blank" rel="noopener noreferer" :href="`https://www.zillow.com/homedetails/${data.item.zpid}_zpid`">
-          {{data.item.zpid}}
-          {{data.item.zillow.property.keystoneHomeStatus}}
-          <img class="thumbnail" :alt="data.item.zillow.property.photos[0].caption" :src="data.item.zillow.property.photos[0].url" >
+        <a target="_blank" rel="noopener noreferer" :href="`https://www.zillow.com/homedetails/${data.item.zillowId}_zpid`">
+          <div class="for-sale-status">{{data.item.status}}</div>
+          <img class="for-sale-thumb" :alt="data.item.thumbnailCaption" :src="data.item.thumbnailUrl" >
         </a>
       </template>
-      <template slot="address" slot-scope="data">
-        {{data.item.zillow.property.streetAddress}}
+      <template slot="price" slot-scope="data">
+        ${{data.item.price}}
       </template>
-      <template slot="city" slot-scope="data">
-        {{data.item.zillow.property.city}}
-      </template>
-      <template slot="state" slot-scope="data">
-        {{data.item.zillow.property.state}}
-      </template>
-      <template slot="bedrooms" slot-scope="data">
-        {{data.item.zillow.property.bedrooms}}
-      </template>
-      <template slot="bathrooms" slot-scope="data">
-        {{data.item.zillow.property.bathrooms}}
-      </template>
-      <template slot="acreage" slot-scope="data">
-        {{data.item.zillow.property.lotSize / 43560}}
-      </template>
-     <template slot="built" slot-scope="data">
-        {{data.item.zillow.property.yearBuilt}}
-      </template>
-     <template slot="livingArea" slot-scope="data">
-        {{data.item.zillow.property.livingArea}}sqft
-      </template>  
-     <template slot="price" slot-scope="data">
-        ${{data.item.zillow.property.price}}
-      </template>
-     <template slot="appraised" slot-scope="data">
-        ${{(data.item.zillow.property.taxAssessedValue/7)*10}} (${{data.item.zillow.property.taxAssessedValue}})
+      <template slot="priceAppraised" slot-scope="data">
+        ${{data.item.priceAppraised}}
       </template>   
-     <template slot="daysListed" slot-scope="data">
-        {{data.item.zillow.property.daysOnZillow}}
-      </template>                                      
-
+      <template slot="priceAssessed" slot-scope="data">
+        ${{data.item.priceAssessed}}
+      </template>
+      <template slot="zestimate" slot-scope="data">
+        ${{data.item.zestimate}}
+      </template>  
       <template slot="options" slot-scope="row">
         <b-button size="sm" @click.stop="row.toggleDetails" class="mr-2">
           {{ row.detailsShowing ? 'Hide' : 'Show'}} Details
         </b-button>        
-        <b-button @click="houseRemoved(row.item.zpid)" size='sm' variant='primary'>[remove]</b-button>
+        <b-button @click="houseRemoved(row.item.zillowId)" size='sm' variant='primary'>Remove From List</b-button>
       </template>
       <template slot="row-details" slot-scope="row">
-        <div>
-           <div v-for="(category, i) in row.item.zillow.property.homeFacts.categoryDetails" :key="category.categoryGroupName+i">
-            <b-card :title="category.categoryGroupName">
-              <div v-for="(factCategory, j) in category.categories" :key="factCategory.categoryName+j">
-                <b-row class="mb-2" v-for="(fact,k) in factCategory.categoryFacts" :key="fact.factLabel+k">
-                  <b-col sm="3" class="text-sm-right">
-                    <b>{{fact.factLabel}}</b>
-                  </b-col>
-                  <b-col class="text-sm-left">{{ fact.factValue }}</b-col>
-                </b-row>
-              </div>
-            </b-card>
-          </div> 
-          <b-button size="sm" @click="row.toggleDetails">Hide Details</b-button>
-        </div>
+        <house-category-details @close="row.toggleDetails" :house="row.item.raw"></house-category-details>
       </template>      
     </b-table>    
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Emit } from "vue-property-decorator";
+import { Component, Prop, Vue, Emit, Watch } from "vue-property-decorator";
+import HouseCategoryDetails from "./HouseCategoryDetails.vue";
 
-@Component
+interface HouseTableModel {
+  zillowId: string;
+  thumbnailUrl: string;
+  thubmnailCaption: string;
+  status: string;
+  type: string;
+  streetAddress: string;
+  city: string;
+  state: string;
+  yearBuilt: number;
+  daysListed: number;
+  bedrooms: number;
+  bathrooms: number;
+  price: number;
+  zestimate: number;
+  priceAppraised: number;
+  priceAssessed: number;
+  acreage: number;
+  livingArea: number;
+  raw: any;
+}
+
+function mapHouse(house: any): HouseTableModel {
+  const zp = house.zillow.property;
+  const htm: HouseTableModel = {
+    raw: house,
+    price: zp.price,
+    yearBuilt: zp.yearBuilt,
+    acreage: +(zp.lotSize / 43560).toFixed(1),
+    daysListed: zp.daysOnZillow,
+    bedrooms: zp.bedrooms,
+    bathrooms: zp.bathrooms,
+    city: zp.city,
+    state: zp.state,
+    streetAddress: zp.streetAddress,
+    thumbnailUrl: zp.photos[0].url,
+    thubmnailCaption: zp.photos[0].caption,
+    zillowId: house.zpid,
+    status: parseUpperCamelCase(zp.keystoneHomeStatus),
+    livingArea: zp.livingArea,
+    priceAssessed: +(+zp.taxAssessedValue).toFixed(0),
+    priceAppraised: +((zp.taxAssessedValue / 7) * 10).toFixed(0),
+    zestimate: zp.zestimate,
+    type:
+      findCategoryDetailsHomeFact(
+        zp,
+        "Construction",
+        "Type and Style",
+        "Structure type"
+      ) || "-"
+  };
+  return htm;
+}
+
+const tableModelFields = [
+  { key: "image", label: "", sortable: false },
+  { key: "type", sortable: true },
+  { key: "streetAddress", label: "Address", sortable: true },
+  { key: "city", sortable: true },
+  { key: "state", sortable: true },
+  { key: "bedrooms", sortable: true },
+  { key: "bathrooms", sortable: true },
+  { key: "acreage", sortable: true },
+  { key: "yearBuilt", sortable: true },
+  { key: "livingArea", label: "Living Area", sortable: true },
+  { key: "price", sortable: true },
+  { key: "priceAppraised", label: "Appraised", sortable: true },
+  { key: "priceAssessed", label: "Assessed", sortable: true },
+  { key: "daysListed", sortable: true },
+  { key: "daysListed", sortable: true }, // TODO actual listing days based on listing history add/remove
+  { key: "zestimate", sortable: true },
+  { key: "options", label: "", sortable: false }
+];
+
+const AZ = /[A-Z]/;
+function parseUpperCamelCase(word: string): string {
+  let newWord = "";
+  for (let i = 0; i < word.length; i += 1) {
+    const char = word[i];
+    if (AZ.test(char) && newWord !== "") {
+      newWord += " ";
+    }
+    newWord += char;
+  }
+  return newWord;
+}
+
+function findCategoryDetailsHomeFact(
+  house: any,
+  category1: string,
+  category2: string,
+  category3: string
+): string | undefined {
+  // special info is burried deep within categories/sub-categories
+  const c2 = house.homeFacts.categoryDetails.find(
+    (c: any) => c.categoryGroupName === category1
+  );
+  for (const c3 of c2.categories) {
+    if (c3.categoryName !== category2) {
+      continue;
+    }
+    return (c3.categoryFacts as any[])
+      .filter((c4: any) => c4.factLabel === category3)
+      .map((c5: any) => c5.factValue)
+      .join(", ");
+  }
+}
+
+@Component({
+  components: {
+    HouseCategoryDetails
+  }
+})
 export default class HouseList extends Vue {
-  @Prop() private houses!: any[];
-  fields: any[] = [
-    { key: "image", label: "", sortable: false },
-    {
-      key: "type",
-      sortable: false,
-      formatter: (value: any, key: any, item: any) => {
-        // special info is burried deep within categories/sub-categories
-        const c2 = item.zillow.property.homeFacts.categoryDetails.find(
-          (c: any) => c.categoryGroupName === "Construction"
-        );
-        for (const c3 of c2.categories) {
-          if (c3.categoryName !== "Type and Style") {
-            continue;
-          }
-          return (c3.categoryFacts as any[])
-            .filter((c4: any) => c4.factLabel === "Structure type")
-            .map((c5: any) => c5.factValue)
-            .join(", ");
-        }
-      }
-    },
-    { key: "address", sortable: false },
-    { key: "city", sortable: false },
-    { key: "state", sortable: false },
-    { key: "id", sortable: true },
-    { key: "bedrooms", sortable: false },
-    { key: "bathrooms", sortable: false },
-    { key: "acreage", sortable: false },
-    { key: "built", sortable: false },
-    { key: "livingArea", Label: "Living Area", sortable: false },
-    { key: "price", sortable: false },
-    { key: "appraised", sortable: false },
-    { key: "daysListed", sortable: false }, // TODO actual listing days based on listing history add/remove
-    // { key: "zestimate", sortable: false },
-    { key: "options", label: "Options", sortable: false }
-  ];
-
+  @Prop()
+  private houses!: any[];
+  tableModel: HouseTableModel[] = [];
+  fields: any[] = tableModelFields;
+  mounted() {
+    this.buildHouseModel(this.houses);
+  }
+  buildHouseModel(newHouses: any[]) {
+    if (!newHouses) {
+      this.tableModel = [];
+      return;
+    }
+    this.tableModel = newHouses.map(mapHouse);
+  }
+  @Watch("houses")
+  onHousesChanged(newHouses: any[]) {
+    this.buildHouseModel(newHouses);
+  }
   @Emit("house-removed")
   async houseRemoved(zpid: any) {
     return zpid;
@@ -121,10 +177,12 @@ export default class HouseList extends Vue {
 
 <style scoped lang="scss">
 #houses {
-  overflow-y: auto;
-  max-height: 20em;
-  .thumbnail {
+  .for-sale-thumb {
     width: 120px;
+  }
+  .for-sale-status {
+    background: #efefef;
+    font-size: 10pt;
   }
 }
 </style>
