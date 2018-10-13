@@ -1,7 +1,7 @@
-import { HouseTableModel } from "@/lib/house";
+import { HouseModel } from "@/lib/house";
 import { parseUpperCamelCase } from "@/lib/string";
 
-export function scoreHouses(houses: HouseTableModel[]) {
+export function scoreHouses(houses: HouseModel[]) {
   if (!houses || houses.length === 0) return;
 
   const statPoints: {

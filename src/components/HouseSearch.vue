@@ -3,9 +3,9 @@
     <div id='search-controls'>
       <b-form @submit="searchHouses" inline>
         <label class="mr-sm-2" for="house-road">House Number and Road</label>
-        <b-form-input required class="mr-sm-2" v-model="road" id="house-road" type="text" placeholder="1 main street"></b-form-input>
+        <b-form-input required class="mr-sm-2" v-model="road" id="house-road" type="text" placeholder="5 Washington Square S"></b-form-input>
 
-        <label class="mr-sm-2" for="house-city">City+State or Zipcode</label>
+        <label class="mr-sm-2" for="house-city">City with State or Zipcode</label>
         <b-form-input required class="mr-sm-2" v-model="city" id="house-city" type="text" placeholder="New York, NY or 10001"></b-form-input>
         
         <b-button @click="searchHouses" size='sm' variant='primary'>Search</b-button>
@@ -13,18 +13,23 @@
       </b-form>   
     </div>
     <div id='results' v-show='results.length > 0'>
-      <b-table striped hover :items="results" :fields="fields">
-        <template slot="zestimate" slot-scope="data">
-          ${{data.item.zestimate}}
-        </template>
-        <template slot="zpid" slot-scope="data">
-          <a target="_blank" rel="noopener noreferer" :href="`https://www.zillow.com/homedetails/${data.item.zpid}_zpid`">
-            {{data.item.zpid}}
-          </a>
-        </template>
-        <template slot="options" slot-scope="data">
-          <b-button @click="selectHouse(data.item.zpid)" size='sm' variant='primary'>Add to List</b-button>
-        </template>
+      <b-table striped hover fixed :items="results" :fields="fields">
+      <house-thumbnail slot="image" slot-scope="data" :status="data.item.status" :zillow-id="data.item.zillowId" :caption="data.item.thumbnailCaption" :url="data.item.thumbnailUrl"></house-thumbnail>  
+      <template slot="price" slot-scope="data">
+        ${{data.item.price}}
+      </template>
+      <template slot="priceAppraised" slot-scope="data">
+        ${{data.item.priceAppraised}}
+      </template>   
+      <template slot="priceAssessed" slot-scope="data">
+        ${{data.item.priceAssessed}}
+      </template>
+      <template slot="taxPaid" slot-scope="data">
+        ${{data.item.taxPaid}}
+      </template>                                       
+      <template slot="options" slot-scope="data">
+        <b-button @click="selectHouse(data.item.zillowId)" size='sm' variant='primary'>Add to List</b-button>
+      </template>
       </b-table>
     </div>
   </div>
@@ -32,20 +37,38 @@
 
 <script lang="ts">
 import { Component, Prop, Vue, Emit } from "vue-property-decorator";
-import Api from "@/lib/api";
+import HouseThumbnail from "./HouseThumbnail.vue";
+import Api, { commonZillowHouseDataGraphql } from "@/lib/api";
+import { mapHouse } from "@/lib/house";
 
-@Component
+@Component({
+  components: {
+    HouseThumbnail
+  }
+})
 export default class HouseSearch extends Vue {
   city: string = "";
   road: string = "";
   results: any[] = [];
   fields: any[] = [
-    { key: "zpid", label: "Zillow ID", sortable: true },
-    { key: "address", sortable: true },
+    { key: "image", label: "", sortable: false },
+    { key: "type", sortable: true },
+    { key: "streetAddress", label: "Address", sortable: true },
     { key: "city", sortable: true },
     { key: "state", sortable: true },
-    { key: "zestimate", sortable: true },
-    { key: "options", label: "Options", sortable: false }
+    { key: "bedrooms", sortable: true },
+    { key: "bathrooms", sortable: true },
+    { key: "acreage", sortable: true },
+    { key: "yearBuilt", sortable: true },
+    { key: "livingArea", label: "Living Area", sortable: true },
+    { key: "price", sortable: true },
+    { key: "priceAppraised", label: "Appraised", sortable: true },
+    { key: "priceAssessed", label: "Assessed", sortable: true },
+    { key: "taxPaid", label: "Taxes", sortable: true },
+    { key: "daysListed", sortable: true },
+    { key: "daysListed", sortable: true }, // TODO actual listing days based on listing history add/remove
+    // { key: "zestimate", sortable: true },
+    { key: "options", label: "", sortable: false }
   ];
 
   @Emit("house-selected")
@@ -61,20 +84,22 @@ export default class HouseSearch extends Vue {
   }
   async searchHouses() {
     try {
-      const resBody = await Api.request("/api/v1/zillow/properties", {
-        qs: {
-          address: this.road,
-          citystatezip: this.city
-        }
-      });
-
-      this.results = resBody.map((p: any) => ({
-        zpid: p.zpid[0],
-        zestimate: p.zestimate[0].amount[0]._,
-        address: p.address[0].street[0],
-        city: p.address[0].city[0],
-        state: p.address[0].state[0]
-      }));
+      const resData = await Api.graphqlRequest(
+        `query ZillowAddressSearch($address: String!, $citystatezip: String!) {
+      zillowAddressSearch(address: $address, citystatezip: $citystatezip) {
+        city
+        zpid
+        latitude
+        longitude
+        state
+        street
+        zipcode
+        ${commonZillowHouseDataGraphql}
+      }
+    }`,
+        { address: this.road, citystatezip: this.city }
+      );
+      this.results = resData.zillowAddressSearch.map(mapHouse);
     } catch (e) {
       this.responseError(e);
     }

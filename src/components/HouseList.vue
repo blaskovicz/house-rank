@@ -1,12 +1,7 @@
 <template>
   <div id="houses">
     <b-table :foot-clone="true" responsive bordered striped hover small :items="tableModel" :fields="fields">
-      <template slot="image" slot-scope="data">
-        <a target="_blank" rel="noopener noreferer" :href="`https://www.zillow.com/homedetails/${data.item.zillowId}_zpid`">
-          <div class="for-sale-status">{{data.item.status}}</div>
-          <img class="for-sale-thumb" :alt="data.item.thumbnailCaption" :src="data.item.thumbnailUrl" >
-        </a>
-      </template>
+      <house-thumbnail slot="image" slot-scope="data" :status="data.item.status" :zillow-id="data.item.zillowId" :caption="data.item.thumbnailCaption" :url="data.item.thumbnailUrl"></house-thumbnail>
       <template slot="score" slot-scope="data">
         <div :id="'score-' + data.item.zillowId">{{data.item.score.toFixed(2)}}</div>
         <b-popover title='About this Score' :target="'score-' + data.item.zillowId" triggers="hover focus">
@@ -49,7 +44,8 @@
 <script lang="ts">
 import { Component, Prop, Vue, Emit, Watch } from "vue-property-decorator";
 import HouseCategoryDetails from "./HouseCategoryDetails.vue";
-import { HouseTableModel, mapHouse } from "@/lib/house";
+import HouseThumbnail from "./HouseThumbnail.vue";
+import { HouseModel, mapHouse } from "@/lib/house";
 import { scoreHouses } from "@/lib/house/score";
 
 const tableModelFields = [
@@ -76,13 +72,14 @@ const tableModelFields = [
 
 @Component({
   components: {
-    HouseCategoryDetails
+    HouseCategoryDetails,
+    HouseThumbnail
   }
 })
 export default class HouseList extends Vue {
   @Prop()
   private houses!: any[];
-  tableModel: HouseTableModel[] = [];
+  tableModel: HouseModel[] = [];
   fields: any[] = tableModelFields;
   mounted() {
     this.buildHouseModel(this.houses);
@@ -109,13 +106,6 @@ export default class HouseList extends Vue {
 
 <style scoped lang="scss">
 #houses {
-  .for-sale-thumb {
-    width: 120px;
-  }
-  .for-sale-status {
-    background: #efefef;
-    font-size: 10pt;
-  }
   .score-table {
     table-layout: fixed;
   }

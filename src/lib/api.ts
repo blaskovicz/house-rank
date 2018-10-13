@@ -1,4 +1,124 @@
-export default new class HouseRankApi {
+export const commonZillowHouseDataGraphql = `
+zillow {
+  pricing {
+    zpid
+    livingArea
+    countyFIPS
+    parcelId
+    taxHistory {
+      time
+      taxPaid
+      taxIncreaseRate
+      value
+      valueIncreaseRate
+    }
+    priceHistory {
+      time
+      price
+      priceChangeRate
+      event
+      source
+      sellerAgent {
+        photo {
+          url
+        }
+        profileUrl
+        name
+      }
+      buyerAgent {
+        photo {
+          url
+        }
+        profileUrl
+        name
+      }
+      postingIsRental
+    }
+  }
+  property {
+    id
+    daysOnZillow
+    dateSold
+    lastSoldPrice
+    isZillowOwned
+    city
+    propertyTypeDimension
+    hdpTypeDimension
+    listingTypeDimension
+    featuredListingTypeDimension
+    brokerIdDimension
+    keystoneHomeStatus
+    rentalApplicationsAcceptedType
+    yearBuilt
+    boroughId
+    brokerId
+    brokerageName
+    providerListingID
+    postingProductType
+    rentalRefreshTime
+    isFeatured
+    rentalDateAvailable
+    newConstructionType
+    comingSoonOnMarketDate
+    listingStatusChangeDate
+    isPreforeclosureAuction
+    taxAssessedValue
+    taxAssessedYear
+    priceChange
+    isNonOwnerOccupied
+    isRecentStatusChange
+    forecast
+    homeStatus
+    homeType
+    country
+    description
+    isUndisclosedAddress
+    isInstantOfferEnabled
+    rentZestimate
+    restimateHighPercent
+    restimateLowPercent
+    restimateMinus30
+    state
+    regionString
+    streetAddress
+    abbreviatedAddress
+    lotSize
+    zestimate
+    zestimateHighPercent
+    zestimateLowPercent
+    zestimateMinus30
+    zipcode
+    zpid
+    price
+    yearBuilt
+    bedrooms
+    bathrooms
+    livingArea
+    hoaFee
+    propertyTaxRate
+    photos: smallPhotos {
+      width
+      height
+      url
+      caption
+    }
+    homeFacts {
+      categoryDetails {
+        categoryGroupName
+        categories {
+          categoryFacts {
+            factLabel
+            factValue
+          }
+          categoryName
+        }
+      }
+    }
+  }  
+}
+`;
+
+export default new class Api {
   state: { principal: any } = {
     principal: null
   };
