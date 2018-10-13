@@ -1,7 +1,7 @@
 <template>
   <div id='app-wrapper'>
     <b-modal title='Request Error' header-text-variant='light' header-bg-variant='danger' v-model="responseError" @ok="dismissResponseError">
-      {{responseString}}
+      <p class='response-error-wrapper'>{{responseString}}</p>
        <div slot="modal-footer" class="w-100">
          <b-btn size="sm" class="float-right" @click="dismissResponseError">
            OK
@@ -55,7 +55,7 @@ export default class HouseRankApp extends Vue {
   responseString: string = "";
   displayResponseError(e: any) {
     console.warn("displayResponseError", e);
-    this.responseString = "An error occurred. ";
+    this.responseString = "An error occurred.\n";
 
     if (e) {
       if (e.errors) {
@@ -257,5 +257,10 @@ export default class HouseRankApp extends Vue {
 <style scoped lang="scss">
 #app-wrapper {
   margin-bottom: 5em;
+  .response-error-wrapper {
+    white-space: pre-wrap;
+    max-height: 10em;
+    overflow-y: auto;
+  }
 }
 </style>
