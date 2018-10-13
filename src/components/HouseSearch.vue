@@ -9,7 +9,7 @@
         <b-form-input required class="mr-sm-2" v-model="city" id="house-city" type="text" placeholder="New York, NY or 10001"></b-form-input>
         
         <b-button @click="searchHouses" size='sm' variant='primary'>Search</b-button>
-        <b-button id='cancel-button' @click="cancelSearch" size='sm' variant="default">Cancel</b-button>
+        <b-button id='cancel-button' v-if="showClear" @click="cancelSearch" size='sm' variant="default">Clear</b-button>
       </b-form>   
     </div>
     <div id='results' v-show='results.length > 0'>
@@ -75,7 +75,12 @@ export default class HouseSearch extends Vue {
   async selectHouse(zpid: any) {
     return zpid;
   }
+  get showClear(): boolean {
+    return this.results.length > 0 || this.city !== "" || this.road !== "";
+  }
   cancelSearch() {
+    this.city = "";
+    this.road = "";
     this.results = [];
   }
   @Emit()
