@@ -32,7 +32,7 @@
 
 <script lang="ts">
 import { Component, Prop, Vue, Emit } from "vue-property-decorator";
-import Api from "@/lib/Api";
+import Api from "@/lib/api";
 
 @Component
 export default class HouseSearch extends Vue {

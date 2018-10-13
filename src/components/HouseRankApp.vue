@@ -30,8 +30,7 @@ import HouseSearch from "./HouseSearch.vue";
 import HouseList from "./HouseList.vue";
 import HouseListMembers from "./HouseListMembers.vue";
 import HouseListMemberSearch from "./HouseListMemberSearch.vue";
-
-import Api from "../lib/Api";
+import Api from "@/lib/api";
 
 const extendedHouseData = `
   id

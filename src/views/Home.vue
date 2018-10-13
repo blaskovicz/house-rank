@@ -8,7 +8,7 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import Api from "../lib/Api";
+import Api from "@/lib/api";
 import HouseRankApp from "@/components/HouseRankApp.vue";
 
 @Component({
