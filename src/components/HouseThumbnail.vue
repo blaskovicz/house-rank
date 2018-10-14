@@ -1,6 +1,6 @@
 <template>
   <div class='house-thumbnail-wrapper-outer' >
-    <b-modal ref="modal" size='lg' v-model="detailsOpen" @ok="closeDetails" @shown="fixScrolling">
+    <b-modal lazy ref="modal" size='lg' v-model="detailsOpen" @ok="closeDetails" @shown="lazyLoadNextImg">
       <div slot="modal-title">
         <b-row>
           <b-col><h5>{{house.streetAddress}}<br>{{house.city}}, {{house.state}}</h5></b-col>
@@ -9,8 +9,10 @@
         </b-row>
       </div>
       <div class='house-thumbnail-large'>        
-        <b-carousel v-model="imageNumber" controls indicators :interval="thumbnailCarouselInterval">
-          <b-carousel-slide :key="photo.url" v-for="photo in house.raw.zillow.property.hugePhotos" :caption="photo.caption" :img-width="photo.width" :img-height="photo.height" :img-src="photo.url"></b-carousel-slide>
+        <b-carousel  @sliding-start="lazyLoadNextImg" v-model="imageNumber" controls indicators :interval="thumbnailCarouselInterval">
+          <b-carousel-slide :key="photo.url" v-for="photo in house.raw.zillow.property.hugePhotos">
+            <b-img-lazy fluid fluid-grow slot="img" class="d-block img-fluid w-100" :alt="photo.caption" :width="photo.width" :height="photo.height" :src="photo.url" />
+          </b-carousel-slide>
         </b-carousel>     
       </div>
       <div class='house-description'>
@@ -34,8 +36,10 @@
       <div @click.stop.prevent="openDetails">
         <div class="for-sale-status">{{house.status}}</div>
         <div class='house-thumbnail-small'>
-          <b-carousel v-model="imageNumber" class="for-sale-thumb" controls indicators :interval="thumbnailCarouselInterval">
-            <b-carousel-slide :key="photo.url" v-for="photo in house.raw.zillow.property.smallPhotos" :caption="photo.caption" :img-width="photo.width" :img-height="photo.height" :img-src="photo.url"></b-carousel-slide>
+          <b-carousel @sliding-start="lazyLoadNextImg" v-model="imageNumber" class="for-sale-thumb" controls indicators :interval="thumbnailCarouselInterval">
+            <b-carousel-slide :key="photo.url" v-for="photo in house.raw.zillow.property.smallPhotos">
+              <b-img-lazy fluid fluid-grow slot="img" class="d-block img-fluid w-100" :alt="photo.caption" :width="photo.width" :height="photo.height" :src="photo.url" />
+            </b-carousel-slide>            
           </b-carousel>
         </div>
       </div>
@@ -48,6 +52,7 @@ import { Component, Prop, Vue } from "vue-property-decorator";
 import HouseCategoryDetails from "./HouseCategoryDetails.vue";
 import { HouseModel } from "@/lib/house";
 import { parseUpperCamelCase } from "@/lib/string";
+import eventBus from "@/lib/events";
 @Component({
   components: {
     HouseCategoryDetails
@@ -59,11 +64,11 @@ export default class HouseThumbnail extends Vue {
   detailsOpen: boolean = false;
   thumbnailCarouselInterval: number = 0;
   imageNumber: number = 0;
-  fixScrolling() {
-    const modal = (this.$refs.modal as any).$el as HTMLElement;
-    setTimeout(() => {
-      (modal!.firstChild!.firstChild!.firstChild! as HTMLDivElement).focus();
-    });
+  mounted() {
+    this.lazyLoadNextImg();
+  }
+  lazyLoadNextImg() {
+    eventBus.$emit("b:carousel:img:next");
   }
   get houseStatus() {
     return parseUpperCamelCase(this.house.status);

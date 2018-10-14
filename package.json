@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "bootstrap-vue": "^2.0.0-rc.11",
+    "debounce": "^1.2.0",
     "serve": "^10.0.2",
     "vue": "^2.5.17",
     "vue-class-component": "^6.0.0",
@@ -26,6 +27,7 @@
   "devDependencies": {
     "@vue/cli-plugin-typescript": "^3.0.4",
     "@vue/cli-service": "^3.0.4",
+    "@types/debounce": "^1.0.0",
     "node-sass": "^4.9.0",
     "sass-loader": "^7.0.1",
     "tslint-config-airbnb": "^5.11.0",
