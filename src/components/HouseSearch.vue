@@ -14,22 +14,22 @@
     </div>
     <div id='results' v-show='results.length > 0'>
       <b-table striped hover fixed :items="results" :fields="fields">
-      <house-thumbnail slot="image" slot-scope="data" :status="data.item.status" :zillow-id="data.item.zillowId" :caption="data.item.thumbnailCaption" :url="data.item.thumbnailUrl"></house-thumbnail>  
-      <template slot="price" slot-scope="data">
-        ${{data.item.price}}
-      </template>
-      <template slot="priceAppraised" slot-scope="data">
-        ${{data.item.priceAppraised}}
-      </template>   
-      <template slot="priceAssessed" slot-scope="data">
-        ${{data.item.priceAssessed}}
-      </template>
-      <template slot="taxPaid" slot-scope="data">
-        ${{data.item.taxPaid}}
-      </template>                                       
-      <template slot="options" slot-scope="data">
-        <b-button @click="selectHouse(data.item.zillowId)" size='sm' variant='primary'>Add to List</b-button>
-      </template>
+        <house-thumbnail slot="image" slot-scope="data" :house="data.item"></house-thumbnail>
+        <template slot="price" slot-scope="data">
+          ${{data.item.price}}
+        </template>
+        <template slot="priceAppraised" slot-scope="data">
+          ${{data.item.priceAppraised}}
+        </template>   
+        <template slot="priceAssessed" slot-scope="data">
+          ${{data.item.priceAssessed}}
+        </template>
+        <template slot="taxPaid" slot-scope="data">
+          ${{data.item.taxPaid}}
+        </template>                                       
+        <template slot="options" slot-scope="data">
+          <b-button @click="selectHouse(data.item.zillowId)" size='sm' variant='primary'>Add to List</b-button>
+        </template>
       </b-table>
     </div>
   </div>
@@ -39,7 +39,7 @@
 import { Component, Prop, Vue, Emit } from "vue-property-decorator";
 import HouseThumbnail from "./HouseThumbnail.vue";
 import Api, { commonZillowHouseDataGraphql } from "@/lib/api";
-import { mapHouse } from "@/lib/house";
+import { mapHouse, HouseModel } from "@/lib/house";
 
 @Component({
   components: {
@@ -49,7 +49,7 @@ import { mapHouse } from "@/lib/house";
 export default class HouseSearch extends Vue {
   city: string = "";
   road: string = "";
-  results: any[] = [];
+  results: HouseModel[] = [];
   fields: any[] = [
     { key: "image", label: "", sortable: false },
     { key: "type", sortable: true },

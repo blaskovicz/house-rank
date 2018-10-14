@@ -96,12 +96,18 @@ zillow {
     livingArea
     hoaFee
     propertyTaxRate
-    photos: smallPhotos {
+    smallPhotos {
       width
       height
       url
       caption
     }
+    hugePhotos {
+      width
+      height
+      url
+      caption
+    }    
     homeFacts {
       categoryDetails {
         categoryGroupName
