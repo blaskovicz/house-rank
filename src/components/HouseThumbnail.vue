@@ -11,7 +11,7 @@
       <div class='house-thumbnail-large'>        
         <b-carousel  @sliding-start="lazyLoadNextImg" v-model="imageNumber" controls indicators :interval="thumbnailCarouselInterval">
           <b-carousel-slide :key="photo.url" v-for="photo in house.raw.zillow.property.hugePhotos">
-            <b-img-lazy fluid fluid-grow slot="img" class="d-block img-fluid w-100" :alt="photo.caption" :width="photo.width" :height="photo.height" :src="photo.url" />
+            <b-img-lazy rounded fluid fluid-grow slot="img" class="d-block img-fluid w-100" :alt="photo.caption" :width="photo.width" :height="photo.height" :src="photo.url" />
           </b-carousel-slide>
         </b-carousel>     
       </div>
@@ -38,7 +38,7 @@
         <div class='house-thumbnail-small'>
           <b-carousel @sliding-start="lazyLoadNextImg" v-model="imageNumber" class="for-sale-thumb" controls indicators :interval="thumbnailCarouselInterval">
             <b-carousel-slide :key="photo.url" v-for="photo in house.raw.zillow.property.smallPhotos">
-              <b-img-lazy fluid fluid-grow slot="img" class="d-block img-fluid w-100" :alt="photo.caption" :width="photo.width" :height="photo.height" :src="photo.url" />
+              <b-img-lazy rounded fluid fluid-grow slot="img" class="d-block img-fluid w-100" :alt="photo.caption" :width="photo.width" :height="photo.height" :src="photo.url" />
             </b-carousel-slide>            
           </b-carousel>
         </div>
@@ -87,7 +87,6 @@ export default class HouseThumbnail extends Vue {
 
 <style scoped lang="scss">
 .house-thumbnail-wrapper-inner {
-  background: #efefef;
   &:hover {
     cursor: pointer;
   }

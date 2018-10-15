@@ -3,7 +3,7 @@
     <b-jumbotron>
       <template slot="header">
         <router-link to="/">
-          <img src="/assets/house_rank-full-600.png" height="200" alt="House Rank" />
+          <b-img fluid src="/assets/house_rank-full-600.png" alt="House Rank" />
         </router-link>
       </template>
     </b-jumbotron>    
