@@ -67,6 +67,9 @@ export default class HouseThumbnail extends Vue {
   mounted() {
     this.lazyLoadNextImg();
   }
+  updated() {
+    this.lazyLoadNextImg();
+  }
   lazyLoadNextImg() {
     eventBus.$emit("b:carousel:img:next");
   }
