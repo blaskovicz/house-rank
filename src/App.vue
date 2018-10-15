@@ -1,21 +1,21 @@
 <template>
   <div id="app">
-    <!-- <div id="nav"> -->
-      <!-- <router-link to="/">Home</router-link> | -->
-      <!-- <router-link to="/about">About</router-link> -->
-    <!-- </div> -->
     <b-jumbotron>
-        <template slot="header">
-          <a href="/" style="color:inherit">House Rank</a>
-        </template>
+      <template slot="header">
+        <router-link to="/">
+          <img src="/assets/house_rank-full-600.png" height="200" alt="House Rank" />
+        </router-link>
+      </template>
     </b-jumbotron>    
     <b-container fluid>
       <router-view/>
     </b-container>
     <footer>
-      <a href="https://zillow.com" target="_blank" rel="noopener noreferrer">
-        <img src="https://www.zillow.com/widgets/GetVersionedResource.htm?path=/static/logos/Zillowlogo_200x50.gif" width="200" height="50" alt="Zillow Real Estate Search">
-      </a>
+      <div id="zillow-footer-wrapper">
+        <a href="https://zillow.com" target="_blank" rel="noopener noreferrer">
+          <img src="https://www.zillow.com/widgets/GetVersionedResource.htm?path=/static/logos/Zillowlogo_200x50.gif" width="200" height="50" alt="Zillow Real Estate Search">
+        </a>
+      </div>
     </footer>
   </div>
 </template>
@@ -40,6 +40,10 @@ export default class App extends Vue {}
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
+}
+#zillow-footer-wrapper {
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 #nav {
   padding: 30px;

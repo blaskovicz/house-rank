@@ -1,7 +1,9 @@
 <template>
   <div class="home">
-    <div v-show="!apiState.principal" id="google-signin-button"></div>
-    <b-button @click="signOut" size='sm' variant='outline-secondary' v-show="apiState.principal" id="google-signout-button">Sign Out</b-button>
+    <div id='signin-wrapper'>
+      <div v-show="!apiState.principal" id="google-signin-button"></div>    
+      <b-button @click="signOut" size='sm' variant='outline-secondary' v-show="apiState.principal" id="google-signout-button">Sign Out</b-button>
+    </div>
     <house-rank-app v-if="apiState.principal" :google-user="apiState.principal" />
   </div>
 </template>
@@ -30,3 +32,14 @@ export default class Home extends Vue {
   }
 }
 </script>
+
+<style lang="scss" scoped>
+#signin-wrapper {
+  position: relative;
+  top: -5em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+</style>
+
