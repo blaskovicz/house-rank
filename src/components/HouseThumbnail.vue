@@ -65,6 +65,8 @@ export default class HouseThumbnail extends Vue {
   thumbnailCarouselInterval: number = 0;
   imageNumber: number = 0;
   mounted() {
+    // https://github.com/bootstrap-vue/bootstrap-vue/issues/1108
+    document.body.appendChild((this.$refs.modal as any).$el);
     this.lazyLoadNextImg();
   }
   updated() {

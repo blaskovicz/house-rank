@@ -35,8 +35,8 @@ export default class Home extends Vue {
 
 <style lang="scss" scoped>
 #signin-wrapper {
-  position: relative;
-  top: -5em;
+  // position: relative;
+  // top: -5em;
   display: flex;
   align-items: center;
   justify-content: center;

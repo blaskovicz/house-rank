@@ -69,10 +69,11 @@ const tableModelFields = [
   }
 })
 export default class HouseList extends Vue {
-  @Prop()
+  @Prop(Array)
   private houses!: any[];
   tableModel: HouseModel[] = [];
   fields: any[] = tableModelFields;
+
   mounted() {
     this.buildHouseModel(this.houses);
   }

@@ -12,12 +12,13 @@
       <!-- TODO <house-list-select /> -->
       <b-tab title='Houses'>
         <house-search @house-selected="addHouse" @response-error="displayResponseError" />
-        <house-list v-if="houseList" @house-removed="removeHouse" :houses="houseList.houses" />
+        <house-list-map :houses="houses" />
+        <house-list @house-removed="removeHouse" :houses="houses" />
       </b-tab>
       <!-- TODO <house-ranking-rules /> -->
       <b-tab title="List Members">
         <house-list-member-search @member-selected="addMember" />
-        <house-list-members v-if="houseList" @member-removed="removeMember" :members="houseList.members" />
+        <house-list-members @member-removed="removeMember" :members="members" />
       </b-tab>
     </b-tabs>
   </div>
@@ -29,6 +30,7 @@ import VueRouter, { Route } from "vue-router";
 import HouseSearch from "./HouseSearch.vue";
 import HouseList from "./HouseList.vue";
 import HouseListMembers from "./HouseListMembers.vue";
+import HouseListMap from "./HouseListMap.vue";
 import HouseListMemberSearch from "./HouseListMemberSearch.vue";
 import Api, { commonZillowHouseDataGraphql } from "@/lib/api";
 
@@ -43,7 +45,8 @@ const extendedHouseData = `
     HouseSearch,
     HouseList,
     HouseListMembers,
-    HouseListMemberSearch
+    HouseListMemberSearch,
+    HouseListMap
   }
 })
 export default class HouseRankApp extends Vue {
@@ -67,6 +70,12 @@ export default class HouseRankApp extends Vue {
       }
     }
     this.responseError = true;
+  }
+  get houses() {
+    return this.houseList ? this.houseList.houses : [];
+  }
+  get members() {
+    return this.houseList ? this.houseList.members : [];
   }
   dismissResponseError() {
     this.responseString = "";

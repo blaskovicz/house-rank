@@ -1,12 +1,10 @@
 <template>
   <div id="app">
-    <b-jumbotron>
-      <template slot="header">
-        <router-link to="/">
-          <b-img fluid src="/assets/house_rank-full-600.png" alt="House Rank" />
-        </router-link>
-      </template>
-    </b-jumbotron>    
+    <router-link to="/">
+      <h3>
+        <b-img id='header-img' fluid src="/assets/house_rank-full-600.png" alt="House Rank" />
+      </h3>
+    </router-link>
     <b-container fluid>
       <router-view/>
     </b-container>
@@ -21,15 +19,23 @@
 </template>
 
 <script lang="ts">
+import { Component, Vue } from "vue-property-decorator";
 import BootstrapVue from "bootstrap-vue";
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap-vue/dist/bootstrap-vue.css";
-import { Component, Vue } from "vue-property-decorator";
+import "leaflet/dist/leaflet.css";
+import L from "leaflet";
+
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: require("leaflet/dist/images/marker-icon-2x.png"),
+  iconUrl: require("leaflet/dist/images/marker-icon.png"),
+  shadowUrl: require("leaflet/dist/images/marker-shadow.png")
+});
 
 Vue.use(BootstrapVue);
-@Component({
-  components: {}
-})
+
+@Component
 export default class App extends Vue {}
 </script>
 
@@ -40,6 +46,10 @@ export default class App extends Vue {}
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
+}
+#header-img {
+  max-height: 150px;
+  padding-top: 5px;
 }
 #zillow-footer-wrapper {
   margin-top: 10px;

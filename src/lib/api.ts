@@ -96,6 +96,8 @@ zillow {
     livingArea
     hoaFee
     propertyTaxRate
+    latitude
+    longitude
     smallPhotos {
       width
       height
