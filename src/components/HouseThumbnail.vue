@@ -79,7 +79,17 @@ export default class HouseThumbnail extends Vue {
     return parseUpperCamelCase(this.house.status);
   }
   openDetails() {
-    this.detailsOpen = true;
+    this.$nextTick(() => {
+      this.detailsOpen = true;
+      const maxImageIndex = this.house
+        ? this.house.raw.zillow.property.smallPhotos.length - 1
+        : 0;
+      if (this.imageNumber < maxImageIndex) {
+        this.imageNumber += 1;
+      } else {
+        this.imageNumber = 0;
+      }
+    });
   }
   closeDetails() {
     this.detailsOpen = false;
@@ -103,6 +113,8 @@ export default class HouseThumbnail extends Vue {
   .house-description {
     text-align: left;
     margin-top: 10px;
+    max-height: 5em;
+    overflow-y: auto;
   }
 }
 </style>
