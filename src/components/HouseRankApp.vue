@@ -1,6 +1,6 @@
 <template>
   <div id='app-wrapper'>
-    <house-details-modal v-if="house" @response-error="displayResponseError" @close="house = null" :house="house"></house-details-modal>
+    <house-details-modal v-if="house" @house-selected="houseAction" :select-option="houseActionText" @response-error="displayResponseError" @close="house = null" :house="house"></house-details-modal>
     <b-modal title='Request Error' header-text-variant='light' header-bg-variant='danger' v-model="responseError" @ok="dismissResponseError">
       <p class='response-error-wrapper'>{{responseString}}</p>
        <div slot="modal-footer" class="w-100">
@@ -38,6 +38,7 @@ import LocationApi from "@/lib/location";
 import Api, { commonZillowHouseDataGraphql } from "@/lib/api";
 import HouseDetailsModal from "@/components/HouseDetailsModal.vue";
 import eventBus from "@/lib/events";
+import { HouseModel } from "@/lib/house";
 
 const extendedHouseData = `
   id
@@ -84,6 +85,27 @@ export default class HouseRankApp extends Vue {
       }
     }
     this.responseError = true;
+  }
+  get houseActionText(): string {
+    if (!this.house || this.houses.length === 0) {
+      return "";
+    }
+    const found = this.houses.find((h: any) => h.zpid === this.house.zpid);
+    if (found) {
+      return "Remove from List";
+    }
+    return "Add to List";
+  }
+  houseAction(house: HouseModel) {
+    if (!this.house || this.houses.length === 0) {
+      return;
+    }
+    const found = this.houses.find((h: any) => h.zpid === this.house.zpid);
+    if (found) {
+      this.removeHouse(house.zpid);
+      return;
+    }
+    this.addHouse(house.zpid);
   }
   get houses() {
     return this.houseList ? this.houseList.houses : [];

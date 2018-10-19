@@ -61,7 +61,6 @@ export default class HouseListMap extends Vue {
       className: `${classes} ${house.status.replace(/ /g, "-")}`
     });
   }
-
   zoomUpdate(zoom: number) {
     this.zoom = zoom;
     this.browseVisibleHouses();
@@ -152,6 +151,7 @@ export default class HouseListMap extends Vue {
     }
 
     const bounds: [number, number][] = [];
+
     this.mapModel = newHouses.map(h => {
       const house = mapHouse(h);
       const icon = this.buildMarkerIcon(house, "owned");

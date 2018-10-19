@@ -21,6 +21,11 @@
                         ${{extendedHouse.price}}
                     </h5>
                 </b-col>
+                <b-col>
+                    <b-btn v-if="selectOption" size="sm" class="select-option-button-house-details float-right" @click="houseSelected">
+                        {{selectOption}}
+                    </b-btn>
+                </b-col>
             </b-row>
         </div>
         <div class='house-thumbnail-large'>        
@@ -41,7 +46,10 @@
                 <img src="https://www.zillow.com/widgets/GetVersionedResource.htm?path=/static/logos/Zillowlogo_200x50.gif" width="200" height="50" alt="View on Zillow">
             </a>
         </div>
-        <div slot="modal-footer" class="w-100">    
+        <div slot="modal-footer" class="w-100">
+            <b-btn v-if="selectOption" size="sm" class="select-option-button-house-details float-right" @click="houseSelected">
+                {{selectOption}}
+            </b-btn>
             <b-btn size="sm" class="float-right" @click="close">
                 Close
             </b-btn>
@@ -64,12 +72,22 @@ import Api, { commonZillowHouseDataGraphqlUnwrapped } from "@/lib/api";
 export default class HouseDetailsModal extends Vue {
   @Prop(Object)
   house!: HouseModel;
+  @Prop(String)
+  selectOption!: String;
+
   extendedHouse: HouseModel | null = null;
   thumbnailCarouselInterval: number = 0;
   visible = true;
 
   mounted() {
     this.onHouseChanged(this.house);
+  }
+
+  @Emit()
+  houseSelected(house: HouseModel) {
+    const h = this.extendedHouse;
+    this.$nextTick(() => this.close());
+    return h;
   }
 
   updated() {
@@ -136,10 +154,14 @@ export default class HouseDetailsModal extends Vue {
 }
 </script>
 <style scoped lang="scss">
+.select-option-button-house-details {
+  margin-left: 5px;
+  margin-right: 5px;
+}
 .house-description {
   text-align: left;
   margin-top: 10px;
-  max-height: 5em;
+  max-height: 10em;
   overflow-y: auto;
 }
 </style>
