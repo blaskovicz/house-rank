@@ -29,9 +29,13 @@ export interface HouseModel {
 }
 
 export function mapHouse(house: any): HouseModel {
-  const zp = house.zillow.property;
-  const zt = house.zillow.pricing.taxHistory;
+  const zp = house.property || house.zillow.property;
+  const zt = (house.pricing || house.zillow.pricing).taxHistory;
+  const zpid = house.zpid || zp.zpid || zt.zpid;
+
   const htm: HouseModel = {
+    zpid,
+    zillowId: zpid,
     score: 0,
     taxPaid: zt && zt.length > 0 && zt[0].taxPaid ? zt[0].taxPaid : 0,
     scoreExplanation: [],
@@ -47,8 +51,6 @@ export function mapHouse(house: any): HouseModel {
     streetAddress: zp.streetAddress,
     thumbnailUrl: zp.smallPhotos[0].url,
     thubmnailCaption: zp.smallPhotos[0].caption,
-    zillowId: house.zpid,
-    zpid: house.zpid,
     status: parseUpperCamelCase(zp.keystoneHomeStatus),
     livingArea: +zp.livingArea,
     priceAssessed: +(+zp.taxAssessedValue).toFixed(0),

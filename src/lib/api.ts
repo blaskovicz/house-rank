@@ -1,5 +1,6 @@
-export const commonZillowHouseDataGraphql = `
-zillow {
+import eventBus from "@/lib/events";
+
+export const commonZillowHouseDataGraphqlUnwrapped = `
   pricing {
     zpid
     livingArea
@@ -123,6 +124,10 @@ zillow {
       }
     }
   }  
+`;
+export const commonZillowHouseDataGraphql = `
+zillow {
+  ${commonZillowHouseDataGraphqlUnwrapped}
 }
 `;
 
@@ -147,6 +152,7 @@ export default new class Api {
     this.principal = user;
     this.assertPrincipal();
     console.log(this.principal.getBasicProfile().getName(), "signed in");
+    eventBus.$emit("api:signed-in");
   }
   public async signOut() {
     this.assertPrincipal();

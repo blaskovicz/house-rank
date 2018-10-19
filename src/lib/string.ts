@@ -10,3 +10,7 @@ export function parseUpperCamelCase(word: string): string {
   }
   return newWord.toLowerCase();
 }
+
+export function parseSnakeCase(word: string): string {
+  return word.replace(/_/g, " ").toLowerCase();
+}

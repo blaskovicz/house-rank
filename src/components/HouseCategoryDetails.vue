@@ -1,7 +1,7 @@
 <template>
     <div v-if="house">
         <b-button v-if="allowHide" class='floating-dismiss' size="sm" @click="close">Hide Details</b-button>
-        <div v-for="(category, i) in house.raw.zillow.property.homeFacts.categoryDetails" :key="category.categoryGroupName+i">
+        <div v-for="(category, i) in categoryDetails" :key="category.categoryGroupName+i">
         <b-card :title="category.categoryGroupName">
             <div v-for="(factCategory, j) in category.categories" :key="factCategory.categoryName+j">
             <b-row class="mb-2" v-for="(fact,k) in factCategory.categoryFacts" :key="fact.factLabel+k">
@@ -27,6 +27,12 @@ export default class HouseCategoryDetails extends Vue {
 
   @Prop(Boolean)
   private allowHide: boolean = false;
+
+  get categoryDetails() {
+    const house = this.house.raw;
+    if (!house) return;
+    return (house.zillow || house).property.homeFacts.categoryDetails;
+  }
 
   @Emit()
   close() {}

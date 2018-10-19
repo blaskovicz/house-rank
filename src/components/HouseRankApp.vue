@@ -1,5 +1,6 @@
 <template>
   <div id='app-wrapper'>
+    <house-details-modal v-if="house" @response-error="displayResponseError" @close="house = null" :house="house"></house-details-modal>
     <b-modal title='Request Error' header-text-variant='light' header-bg-variant='danger' v-model="responseError" @ok="dismissResponseError">
       <p class='response-error-wrapper'>{{responseString}}</p>
        <div slot="modal-footer" class="w-100">
@@ -21,6 +22,7 @@
         <house-list-members @member-removed="removeMember" :members="members" />
       </b-tab>
     </b-tabs>
+    {{locationState}}
   </div>
 </template>
 
@@ -32,7 +34,10 @@ import HouseList from "./HouseList.vue";
 import HouseListMembers from "./HouseListMembers.vue";
 import HouseListMap from "./HouseListMap.vue";
 import HouseListMemberSearch from "./HouseListMemberSearch.vue";
+import LocationApi from "@/lib/location";
 import Api, { commonZillowHouseDataGraphql } from "@/lib/api";
+import HouseDetailsModal from "@/components/HouseDetailsModal.vue";
+import eventBus from "@/lib/events";
 
 const extendedHouseData = `
   id
@@ -46,16 +51,25 @@ const extendedHouseData = `
     HouseList,
     HouseListMembers,
     HouseListMemberSearch,
-    HouseListMap
+    HouseListMap,
+    HouseDetailsModal
   }
 })
 export default class HouseRankApp extends Vue {
+  house: any = null;
   houseList: any = null;
   $router!: VueRouter;
   $route!: Route;
   listState: any = null;
+  locationState = LocationApi.state;
   responseError: boolean = false;
   responseString: string = "";
+  beforeDestroy() {
+    eventBus.$off("house:modal:show", this.showHouseDetails);
+  }
+  showHouseDetails(house: any) {
+    this.house = house;
+  }
   displayResponseError(e: any) {
     console.warn("displayResponseError", e);
     this.responseString = "An error occurred.\n";
@@ -85,6 +99,8 @@ export default class HouseRankApp extends Vue {
     next();
   }
   async created() {
+    this.showHouseDetails = this.showHouseDetails.bind(this);
+    eventBus.$on("house:modal:show", this.showHouseDetails);
     // query lists, set active
     try {
       const resData = await Api.graphqlRequest(`query {

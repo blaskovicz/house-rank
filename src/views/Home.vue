@@ -4,7 +4,7 @@
       <div v-show="!apiState.principal" id="google-signin-button"></div>    
       <b-button @click="signOut" size='sm' variant='outline-secondary' v-show="apiState.principal" id="google-signout-button">Sign Out</b-button>
     </div>
-    <house-rank-app v-if="apiState.principal" :google-user="apiState.principal" />
+    <house-rank-app v-if="apiState.principal" />
   </div>
 </template>
 
