@@ -8,7 +8,10 @@ export interface Location {
 export class LocationApi {
   state: { location?: Location } = {};
   constructor() {
-    eventBus.$once("api:signed-in", this.fetchRelative);
+    eventBus.$on("api:signed-in", this.fetchRelative);
+  }
+  locationAvailable() {
+    eventBus.$emit("location:available", this.state.location);
   }
   fetchRelative = async () => {
     try {
@@ -19,20 +22,29 @@ export class LocationApi {
             }
         }`);
       if (resData.location) {
+        console.info("loaded relative location", resData.location);
         this.state = resData;
+        this.locationAvailable();
       } else {
         this.fetchPrecise();
       }
     } catch (e) {
-      console.warn(e);
+      console.warn("failed to fetch relative location", e);
     }
   };
   fetchPrecise() {
     if (!navigator || !navigator.geolocation) return;
-    navigator.geolocation.getCurrentPosition(p => {
-      const { longitude, latitude } = p.coords;
-      this.state = { location: { latitude, longitude } };
-    });
+    navigator.geolocation.getCurrentPosition(
+      p => {
+        console.info("loaded precise location", p.coords);
+        const { longitude, latitude } = p.coords;
+        this.state = { location: { latitude, longitude } };
+        this.locationAvailable();
+      },
+      e => {
+        console.warn("failed to fetch precise location", e);
+      }
+    );
   }
 }
 

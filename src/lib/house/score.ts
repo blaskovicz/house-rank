@@ -84,8 +84,10 @@ export function scoreHouses(houses: HouseModel[]) {
         );
       }
       addToScore(
-        (h[sharedBestStat] * statPoints[sharedBestStat].score) /
-          stats.max[sharedBestStat],
+        stats.max[sharedBestStat] === 0
+          ? 0
+          : (h[sharedBestStat] * statPoints[sharedBestStat].score) /
+            stats.max[sharedBestStat],
         statPoints[sharedBestStat].score,
         `most ${parseUpperCamelCase(sharedBestStat)}`
       );
@@ -101,17 +103,22 @@ export function scoreHouses(houses: HouseModel[]) {
         );
       }
 
+      const normalizeTo = stats.max[sharedBestStat] - stats.min[sharedBestStat];
       addToScore(
-        ((stats.max[sharedBestStat] - h[sharedBestStat]) *
-          statPoints[sharedBestStat].score) /
-          (stats.max[sharedBestStat] - stats.min[sharedBestStat]),
+        normalizeTo === 0
+          ? statPoints[sharedBestStat].score
+          : ((stats.max[sharedBestStat] - h[sharedBestStat]) *
+              statPoints[sharedBestStat].score) /
+            normalizeTo,
         statPoints[sharedBestStat].score,
         `least ${parseUpperCamelCase(sharedBestStat)}`
       );
     }
 
     addToScore(
-      (h.yearBuilt * statPoints.yearBuilt.score) / stats.max.yearBuilt,
+      stats.max.yearBuilt === 0
+        ? statPoints.yearBuilt.score
+        : (h.yearBuilt * statPoints.yearBuilt.score) / stats.max.yearBuilt,
       statPoints.yearBuilt.score,
       "newest year built"
     );

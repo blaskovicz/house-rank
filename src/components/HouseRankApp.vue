@@ -22,7 +22,6 @@
         <house-list-members @member-removed="removeMember" :members="members" />
       </b-tab>
     </b-tabs>
-    {{locationState}}
   </div>
 </template>
 
@@ -34,7 +33,6 @@ import HouseList from "./HouseList.vue";
 import HouseListMembers from "./HouseListMembers.vue";
 import HouseListMap from "./HouseListMap.vue";
 import HouseListMemberSearch from "./HouseListMemberSearch.vue";
-import LocationApi from "@/lib/location";
 import Api, { commonZillowHouseDataGraphql } from "@/lib/api";
 import HouseDetailsModal from "@/components/HouseDetailsModal.vue";
 import eventBus from "@/lib/events";
@@ -62,7 +60,6 @@ export default class HouseRankApp extends Vue {
   $router!: VueRouter;
   $route!: Route;
   listState: any = null;
-  locationState = LocationApi.state;
   responseError: boolean = false;
   responseString: string = "";
   beforeDestroy() {
@@ -87,7 +84,7 @@ export default class HouseRankApp extends Vue {
     this.responseError = true;
   }
   get houseActionText(): string {
-    if (!this.house || this.houses.length === 0) {
+    if (!this.house) {
       return "";
     }
     const found = this.houses.find((h: any) => h.zpid === this.house.zpid);
@@ -97,7 +94,7 @@ export default class HouseRankApp extends Vue {
     return "Add to List";
   }
   houseAction(house: HouseModel) {
-    if (!this.house || this.houses.length === 0) {
+    if (!this.house) {
       return;
     }
     const found = this.houses.find((h: any) => h.zpid === this.house.zpid);
@@ -178,7 +175,7 @@ export default class HouseRankApp extends Vue {
         } else if (this.listState.memberHouseLists.length > 0) {
           // ... otherwise the first member list
           this.houseList = this.listState.memberHouseLists[0];
-        }
+        } // else no lists yet at all!
       }
 
       // make sure the route is correct

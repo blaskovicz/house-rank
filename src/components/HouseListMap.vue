@@ -21,7 +21,7 @@ import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import L from "leaflet";
 import { mapHouse, HouseModel } from "@/lib/house";
 const { LMap, LTileLayer, LMarker } = require("vue2-leaflet");
-import Location from "@/lib/location";
+import LocationApi, { Location } from "@/lib/location";
 import eventBus from "@/lib/events";
 import debounce from "debounce";
 import Api from "@/lib/api";
@@ -37,7 +37,7 @@ import { parseSnakeCase } from "@/lib/string";
   }
 })
 export default class HouseListMap extends Vue {
-  private locationState = Location.state;
+  private locationState = LocationApi.state;
   private zoom: number = 12;
   private center: L.LatLng = L.latLng(47.41322, -1.219482);
   @Prop(Array)
@@ -45,6 +45,7 @@ export default class HouseListMap extends Vue {
   private visibleHouses: any[] = [];
   private mapModel: { marker: L.LatLng; house: HouseModel }[] = [];
   private url: string = "https://{s}.tile.osm.org/{z}/{x}/{y}.png";
+
   created() {
     this.browseVisibleHouses = debounce(
       this.browseVisibleHouses.bind(this),
@@ -52,6 +53,19 @@ export default class HouseListMap extends Vue {
     );
     this.buildHouseModel(this.houses);
   }
+
+  mounted() {
+    eventBus.$once("location:available", this.updateLocation);
+  }
+  beforeDestroy() {
+    eventBus.$off("location:available", this.updateLocation);
+  }
+
+  updateLocation(location: Location) {
+    this.center = L.latLng(location.latitude, location.longitude);
+    this.browseVisibleHouses();
+  }
+
   boundsUpate(bounds: L.LatLngBounds) {
     this.browseVisibleHouses();
   }
@@ -171,7 +185,7 @@ export default class HouseListMap extends Vue {
       } else if (this.location) {
         this.center = this.location;
       } else {
-        console.warn("no bounds or location found, defaulting to whatever.");
+        console.warn("no bounds or location available");
       }
       this.browseVisibleHouses();
     });
