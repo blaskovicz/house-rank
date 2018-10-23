@@ -66,3 +66,39 @@ export function mapHouse(house: any): HouseModel {
   };
   return htm;
 }
+
+export function shortPrice(price: number, priceUnit: string = "$"): string {
+  let count = 0;
+  let slimPrice = price;
+  // 123 -> 123
+  // 666,000 -> 666K
+  // 12,500,000 -> 12500K -> 12.5M
+  while (slimPrice > 1000 && count < 3) {
+    slimPrice /= 1000;
+    count += 1;
+  }
+  let unit = "";
+  switch (count) {
+    case 1:
+      unit = "K";
+      break;
+    case 2:
+      unit = "M";
+      break;
+    case 3:
+      unit = "B";
+      break;
+    default:
+      break;
+  }
+
+  let numeral;
+  const [preDot, postDot] = `${slimPrice.toFixed(2)}`.split(".", 2);
+  const postRemoved = postDot.replace(/0+/g, "");
+  if (postRemoved === "" || preDot.length > 2) {
+    numeral = preDot;
+  } else {
+    numeral = `${preDot}.${postRemoved}`;
+  }
+  return `${priceUnit}${numeral}${unit}`;
+}
