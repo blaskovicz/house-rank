@@ -10,7 +10,7 @@
       @close="hideHouseDetails"
       :house="house"
     ></house-details-modal>
-    <b-modal title='Request Error' header-text-variant='light' header-bg-variant='danger' v-model="responseError" @ok="dismissResponseError">
+    <b-modal no-fade title='Request Error' header-text-variant='light' header-bg-variant='danger' v-model="responseError" @ok="dismissResponseError">
       <p class='response-error-wrapper'>{{responseString}}</p>
        <div slot="modal-footer" class="w-100">
          <b-btn size="sm" class="float-right" @click="dismissResponseError">

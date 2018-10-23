@@ -1,7 +1,7 @@
 <template>
   <div>
     <b-btn v-b-modal.filterControls>Map Filters...</b-btn>
-    <b-modal id="filterControls" title="Map Filters" @hide="resetFiltersToSaved" @ok="saveFilters">
+    <b-modal no-fade id="filterControls" title="Map Filters" @hide="resetFiltersToSaved" @ok="saveFilters">
       <b-form v-if="formFilters && formFilters._version">
         <b-row>
           <b-col sm="4"><label for="price-min">Min Price</label></b-col>

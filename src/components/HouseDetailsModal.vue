@@ -1,5 +1,5 @@
 <template>
-    <b-modal v-model="visible" size='lg' @hidden="close" @shown="lazyLoadNextImg" @show="lazyLoadNextImg" v-if="extendedHouse">
+    <b-modal no-fade v-model="visible" size='lg' @hidden="close" @shown="lazyLoadNextImg" @show="lazyLoadNextImg" v-if="extendedHouse">
         <div slot="modal-title">
             <b-row>
                 <b-col>
