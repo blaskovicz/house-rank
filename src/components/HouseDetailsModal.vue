@@ -22,6 +22,9 @@
                     </h5>
                 </b-col>
                 <b-col>
+                    <b-btn v-if="selectOptionAlt" size="sm" class="select-option-button-house-details float-right" @click="houseSelectedAlt">
+                        {{selectOptionAlt}}
+                    </b-btn>                  
                     <b-btn v-if="selectOption" size="sm" class="select-option-button-house-details float-right" @click="houseSelected">
                         {{selectOption}}
                     </b-btn>
@@ -47,6 +50,9 @@
             </a>
         </div>
         <div slot="modal-footer" class="w-100">
+            <b-btn v-if="selectOptionAlt" size="sm" class="select-option-button-house-details float-right" @click="houseSelectedAlt">
+                {{selectOptionAlt}}
+            </b-btn>          
             <b-btn v-if="selectOption" size="sm" class="select-option-button-house-details float-right" @click="houseSelected">
                 {{selectOption}}
             </b-btn>
@@ -74,6 +80,8 @@ export default class HouseDetailsModal extends Vue {
   house!: HouseModel;
   @Prop(String)
   selectOption!: String;
+  @Prop(String)
+  selectOptionAlt!: String;
 
   extendedHouse: HouseModel | null = null;
   thumbnailCarouselInterval: number = 0;
@@ -85,6 +93,13 @@ export default class HouseDetailsModal extends Vue {
 
   @Emit()
   houseSelected(house: HouseModel) {
+    const h = this.extendedHouse;
+    this.$nextTick(() => this.close());
+    return h;
+  }
+
+  @Emit()
+  houseSelectedAlt(house: HouseModel) {
     const h = this.extendedHouse;
     this.$nextTick(() => this.close());
     return h;

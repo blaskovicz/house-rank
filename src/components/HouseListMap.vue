@@ -171,8 +171,13 @@ export default class HouseListMap extends Vue {
   private locationState = LocationApi.state;
   private zoom: number = 12;
   private center: L.LatLng = L.latLng(47.41322, -1.219482);
+
   @Prop(Array)
   private houses!: any[];
+
+  @Prop(Array)
+  private housesIgnored!: any[];
+
   private visibleHouses: any[] = [];
   private mapModel: { marker: L.LatLng; house: HouseModel }[] = [];
   private url: string = "https://{s}.tile.osm.org/{z}/{x}/{y}.png";
@@ -370,8 +375,13 @@ export default class HouseListMap extends Vue {
         )
       );
 
-      // remove houses we already have in our list
-      const listZpids = new Set(this.mapModel.map(h => h.house.zpid));
+      const listZpids = new Set([
+        // remove houses we already have in our list
+        ...this.mapModel.map(h => h.house.zpid),
+        // along with those that are ignored
+        ...(this.housesIgnored || []).map(h => h.zpid)
+      ]);
+
       this.visibleHouses = (resData.zillowMapSearch || [])
         .filter((h: any) => !listZpids.has(h.zpid))
         .map((h: any) => {
@@ -386,10 +396,17 @@ export default class HouseListMap extends Vue {
       console.warn(e);
     }
   }
+
   @Watch("houses")
   onHousesChanged(newHouses: any[]) {
     this.buildHouseModel(newHouses);
   }
+
+  @Watch("housesIgnored")
+  onHousesIgnoredChanged() {
+    this.browseVisibleHouses();
+  }
+
   get map(): L.Map {
     return (this.$refs.map as any).mapObject as L.Map;
   }

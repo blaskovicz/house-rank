@@ -1,6 +1,15 @@
 <template>
   <div id='app-wrapper'>
-    <house-details-modal v-if="house" @house-selected="houseAction" :select-option="houseActionText" @response-error="displayResponseError" @close="house = null" :house="house"></house-details-modal>
+    <house-details-modal
+      v-if="house"
+      @house-selected="houseAction"
+      @house-selected-alt="houseActionAlt"
+      :select-option="houseActionText"
+      :select-option-alt="houseActionTextAlt"
+      @response-error="displayResponseError"
+      @close="hideHouseDetails"
+      :house="house"
+    ></house-details-modal>
     <b-modal title='Request Error' header-text-variant='light' header-bg-variant='danger' v-model="responseError" @ok="dismissResponseError">
       <p class='response-error-wrapper'>{{responseString}}</p>
        <div slot="modal-footer" class="w-100">
@@ -13,7 +22,7 @@
       <!-- TODO <house-list-select /> -->
       <b-tab title='Houses'>
         <house-search @house-selected="addHouse" @response-error="displayResponseError" />
-        <house-list-map :houses="houses" />
+        <house-list-map :houses="houses" :houses-ignored="ignoredHouses" />
         <house-list @house-removed="removeHouse" :houses="houses" />
       </b-tab>
       <!-- TODO <house-ranking-rules /> -->
@@ -68,6 +77,9 @@ export default class HouseRankApp extends Vue {
   showHouseDetails(house: any) {
     this.house = house;
   }
+  hideHouseDetails() {
+    this.house = null;
+  }
   displayResponseError(e: any) {
     console.warn("displayResponseError", e);
     this.responseString = "An error occurred.\n";
@@ -83,6 +95,32 @@ export default class HouseRankApp extends Vue {
     }
     this.responseError = true;
   }
+  get houseActionTextAlt(): string {
+    if (!this.house) {
+      return "";
+    }
+    const found = this.ignoredHouses.find(
+      (h: any) => h.zpid === this.house.zpid
+    );
+    if (found) {
+      return "Remove from Ignored List";
+    }
+    return "Add to Ignored List";
+  }
+  houseActionAlt(house: HouseModel) {
+    if (!this.house) {
+      return;
+    }
+    const found = this.ignoredHouses.find(
+      (h: any) => h.zpid === this.house.zpid
+    );
+    if (found) {
+      this.clearIgnoredHouse(house.zpid);
+      return;
+    }
+    this.ignoreHouse(house.zpid);
+  }
+
   get houseActionText(): string {
     if (!this.house) {
       return "";
@@ -104,6 +142,11 @@ export default class HouseRankApp extends Vue {
     }
     this.addHouse(house.zpid);
   }
+  get ignoredHouses() {
+    return this.listState && this.listState.ignoredHouses
+      ? this.listState.ignoredHouses
+      : [];
+  }
   get houses() {
     return this.houseList ? this.houseList.houses : [];
   }
@@ -124,6 +167,10 @@ export default class HouseRankApp extends Vue {
     try {
       const resData = await Api.graphqlRequest(`query {
   user {
+    ignoredHouses {
+      id
+      zpid
+    }
     ownedHouseLists {
       id
       name
@@ -235,7 +282,7 @@ export default class HouseRankApp extends Vue {
   async removeHouse(zpid: string) {
     // remove house, update list
     try {
-      const resData = await Api.graphqlRequest(
+      await Api.graphqlRequest(
         `mutation RemoveHouseFromList($listId: Int!, $zpid: String!) {
       removeHouseFromList(listId: $listId, zpid: $zpid) {
         id
@@ -245,14 +292,16 @@ export default class HouseRankApp extends Vue {
         { zpid, listId: this.houseList.id }
       );
       const toSplice = (this.houseList.houses as any[]).findIndex(
-        (h: any) => h.id === resData.removeHouseFromList.id
+        (h: any) => h.zpid === zpid
       );
+      if (toSplice === -1) return;
       this.houseList.houses.splice(toSplice, 1);
       this.houseList = this.houseList;
     } catch (e) {
       this.displayResponseError(e);
     }
   }
+
   async addHouse(zpid: string) {
     try {
       if (!this.houseList) {
@@ -291,6 +340,54 @@ export default class HouseRankApp extends Vue {
       );
       this.houseList.houses.push(resData.addHouseToList);
       this.houseList = this.houseList;
+    } catch (e) {
+      this.displayResponseError(e);
+    }
+  }
+
+  async ignoreHouse(zpid: string) {
+    // add house, update list
+    try {
+      const resData = await Api.graphqlRequest(
+        `mutation IgnoreHouse($zpid: String!) {
+      ignoreHouse(zpid: $zpid) {
+        id
+        zpid
+      }
+    }`,
+        { zpid }
+      );
+
+      const hasHouse = (this.listState.ignoredHouses as any[]).find(
+        (h: any) => h.zpid === zpid
+      );
+      if (hasHouse) return;
+
+      (this.listState.ignoredHouses as any[]).push(resData.ignoreHouse);
+      this.listState = this.listState;
+    } catch (e) {
+      this.displayResponseError(e);
+    }
+  }
+
+  async clearIgnoredHouse(zpid: string) {
+    // remove house, update list
+    try {
+      await Api.graphqlRequest(
+        `mutation ClearIgnoredHouse($zpid: String!) {
+      clearIgnoredHouse(zpid: $zpid) {
+        id
+        zpid
+      }
+    }`,
+        { zpid }
+      );
+      const toSplice = (this.listState.ignoredHouses as any[]).findIndex(
+        (h: any) => h.zpid === zpid
+      );
+      if (toSplice === -1) return;
+      (this.listState.ignoredHouses as any[]).splice(toSplice, 1);
+      this.listState = this.listState;
     } catch (e) {
       this.displayResponseError(e);
     }
