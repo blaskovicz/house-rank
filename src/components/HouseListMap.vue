@@ -282,9 +282,7 @@ export default class HouseListMap extends Vue {
     // some houses based on status don't have price
     return L.divIcon({
       html:
-        house.price !== undefined &&
-        house.price !== 0 &&
-        (owned || this.zoom >= 13)
+        house.price && (owned || this.zoom >= 13)
           ? `<div class="map-price-icon">${shortPrice(house.price)}</div>`
           : "",
       className: `${owned ? "owned" : ""} ${house.status.replace(/ /g, "-")}`
