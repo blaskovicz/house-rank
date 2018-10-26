@@ -2,11 +2,14 @@
   <div @click.stop.prevent="openDetails" class='house-thumbnail-wrapper-inner'>
     <div class="for-sale-status">{{house.status}}</div>
     <div class='house-thumbnail-small'>
-      <b-carousel @sliding-start="lazyLoadNextImg" class="for-sale-thumb" controls indicators :interval="thumbnailCarouselInterval">
-        <b-carousel-slide :key="photo.url" v-for="photo in house.raw.zillow.property.smallPhotos">
-          <b-img-lazy rounded fluid fluid-grow slot="img" class="d-block img-fluid w-100" :alt="photo.caption" :width="photo.width" :height="photo.height" :src="photo.url" />
-        </b-carousel-slide>            
-      </b-carousel>
+        <b-img-lazy
+          rounded fluid fluid-grow
+          class="d-block img-fluid w-100"
+          :alt="photo.caption"
+          :width="photo.width"
+          :height="photo.height"
+          :src="photo.url"
+        />
     </div>
   </div>
 </template>
@@ -20,7 +23,10 @@ export default class HouseThumbnail extends Vue {
   @Prop(Object)
   house!: HouseModel;
   thumbnailCarouselInterval: number = 0;
-
+  get photo() {
+    if (!this.house) return;
+    return this.house.raw.zillow.property.smallPhotos[0];
+  }
   mounted() {
     this.lazyLoadNextImg();
   }
@@ -41,8 +47,8 @@ export default class HouseThumbnail extends Vue {
   &:hover {
     cursor: pointer;
   }
-  .for-sale-thumb {
-    width: 120px;
+  .house-thumbnail-small {
+    width: 80px;
   }
   .for-sale-status {
     font-size: 10pt;
