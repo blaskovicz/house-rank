@@ -14,19 +14,7 @@
     </div>
     <div id='results' v-show='results.length > 0'>
       <b-table striped hover fixed :items="results" :fields="fields">
-        <house-thumbnail slot="image" slot-scope="data" :house="data.item"></house-thumbnail>
-        <template slot="price" slot-scope="data">
-          ${{data.item.price}}
-        </template>
-        <template slot="priceAppraised" slot-scope="data">
-          ${{data.item.priceAppraised}}
-        </template>   
-        <template slot="priceAssessed" slot-scope="data">
-          ${{data.item.priceAssessed}}
-        </template>
-        <template slot="taxPaid" slot-scope="data">
-          ${{data.item.taxPaid}}
-        </template>                                       
+        <house-thumbnail slot="image" slot-scope="data" :house="data.item"></house-thumbnail>                                     
         <template slot="options" slot-scope="data">
           <b-button @click="selectHouse(data.item.zillowId)" size='sm' variant='primary'>Add to List</b-button>
         </template>
@@ -39,7 +27,7 @@
 import { Component, Prop, Vue, Emit } from "vue-property-decorator";
 import HouseThumbnail from "./HouseThumbnail.vue";
 import Api, { commonZillowHouseDataGraphql } from "@/lib/api";
-import { mapHouse, HouseModel } from "@/lib/house";
+import { mapHouse, HouseModel, fullPrice } from "@/lib/house";
 
 @Component({
   components: {
@@ -61,10 +49,20 @@ export default class HouseSearch extends Vue {
     { key: "acreage", sortable: true },
     { key: "yearBuilt", sortable: true },
     { key: "livingArea", label: "Living Area", sortable: true },
-    { key: "price", sortable: true },
-    { key: "priceAppraised", label: "Appraised", sortable: true },
-    { key: "priceAssessed", label: "Assessed", sortable: true },
-    { key: "taxPaid", label: "Taxes", sortable: true },
+    { key: "price", sortable: true, formatter: fullPrice },
+    {
+      key: "priceAppraised",
+      label: "Appraised",
+      sortable: true,
+      formatter: fullPrice
+    },
+    {
+      key: "priceAssessed",
+      label: "Assessed",
+      sortable: true,
+      formatter: fullPrice
+    },
+    { key: "taxPaid", label: "Taxes", sortable: true, formatter: fullPrice },
     { key: "daysListed", sortable: true },
     { key: "daysListed", sortable: true }, // TODO actual listing days based on listing history add/remove
     // { key: "zestimate", sortable: true },

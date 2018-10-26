@@ -18,7 +18,7 @@
                 <b-col>
                     <h5>
                         {{houseStatus}}<br>
-                        ${{extendedHouse.price}}
+                        {{housePrice}}
                     </h5>
                 </b-col>
                 <b-col>
@@ -38,12 +38,33 @@
                 </b-carousel-slide>
             </b-carousel>     
         </div>
-        <div class='house-description'>
-            <p>{{houseDescription}}</p>
-            </div>
-            <div class='house-facts'>
-            <house-category-details :house="extendedHouse"></house-category-details>
-        </div>
+        <b-tabs>
+            <b-tab title="Description" active>
+                <div class='house-description'>
+                    <p>{{houseDescription}}</p>
+                    </div>
+                    <div class='house-facts'>
+                    <house-category-details :house="extendedHouse"></house-category-details>
+                </div>
+            </b-tab>
+            <b-tab title="Price History">
+                <b-table :fields="priceHistoryFields" :items="pricing.priceHistory">
+                    <template slot="priceChangeRate" slot-scope="data">
+                        <rate-change-formatter :rate="data.value">{{data.value}}</rate-change-formatter>
+                    </template>                    
+                </b-table>                               
+            </b-tab>
+            <b-tab title="Tax History">
+                <b-table :fields="taxHistoryFields" :items="pricing.taxHistory">
+                    <template slot="taxIncreaseRate" slot-scope="data">
+                       <rate-change-formatter :rate="data.value">{{data.value}}</rate-change-formatter>
+                    </template>
+                    <template slot="valueIncreaseRate" slot-scope="data">
+                        <rate-change-formatter :rate="data.value">{{data.value}}</rate-change-formatter>
+                    </template>                                        
+                </b-table>
+            </b-tab>            
+        </b-tabs>
         <div>
             <a target="_blank" rel="noopener noreferer" :href="`https://www.zillow.com/homedetails/${extendedHouse.zpid}_zpid`">
                 <img src="https://www.zillow.com/widgets/GetVersionedResource.htm?path=/static/logos/Zillowlogo_200x50.gif" width="200" height="50" alt="View on Zillow">
@@ -66,16 +87,69 @@
 <script lang="ts">
 import { Watch, Component, Prop, Vue, Emit } from "vue-property-decorator";
 import HouseCategoryDetails from "./HouseCategoryDetails.vue";
-import { HouseModel, mapHouse } from "@/lib/house";
+import { HouseModel, mapHouse, percentage, fullPrice } from "@/lib/house";
 import { parseUpperCamelCase } from "@/lib/string";
+import RateChangeFormatter from "@/formatters/RateChange.vue";
 import eventBus from "@/lib/events";
+import moment from "moment";
 import Api, { commonZillowHouseDataGraphqlUnwrapped } from "@/lib/api";
 @Component({
   components: {
+    RateChangeFormatter,
     HouseCategoryDetails
   }
 })
 export default class HouseDetailsModal extends Vue {
+  taxHistoryFields = [
+    {
+      key: "time",
+      label: "Year",
+      sortable: true,
+      formatter: (value: any) => moment(value).format("YYYY")
+    },
+    {
+      key: "taxPaid",
+      label: "Property Taxes",
+      sortable: true,
+      formatter: fullPrice
+    },
+    {
+      key: "taxIncreaseRate",
+      label: "Change",
+      sortable: true,
+      formatter: percentage
+    },
+    {
+      key: "value",
+      label: "Tax Assessment",
+      sortable: true,
+      formatter: fullPrice
+    },
+    {
+      key: "valueIncreaseRate",
+      label: "Change",
+      sortable: true,
+      formatter: percentage
+    }
+  ];
+  priceHistoryFields = [
+    {
+      key: "time",
+      label: "Date",
+      sortable: true,
+      formatter: (value: any) => moment(value).format("YYYY/MM/DD")
+    },
+    { key: "event", sortable: false },
+    { key: "price", sortable: true, formatter: fullPrice },
+    {
+      key: "priceChangeRate",
+      label: "Change",
+      sortable: true,
+      formatter: percentage
+    },
+    { key: "source", sortable: false }
+  ];
+
   @Prop(Object)
   house!: HouseModel;
   @Prop(String)
@@ -152,10 +226,19 @@ export default class HouseDetailsModal extends Vue {
   lazyLoadNextImg() {
     eventBus.$emit("b:carousel:img:next");
   }
+  get pricing(): any {
+    if (!this.extendedHouse) return;
+    const ehr = this.extendedHouse.raw;
+    return (ehr.zillow || ehr).pricing;
+  }
   get hugePhotos(): any[] {
     if (!this.extendedHouse) return [];
     const ehr = this.extendedHouse.raw;
     return (ehr.zillow || ehr).property.hugePhotos;
+  }
+  get housePrice(): string {
+    if (!this.extendedHouse) return "";
+    return fullPrice(this.extendedHouse.price);
   }
   get houseStatus(): string {
     if (!this.extendedHouse) return "";

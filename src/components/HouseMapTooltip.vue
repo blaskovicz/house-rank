@@ -7,7 +7,7 @@
             <div class="tooltip-stats">
                 <!-- <div>{{house.streetAddress || house.street}}</div>
                 <div>{{house.city}}</div>               -->
-                <div>${{house.price}}</div>
+                <div class='price'>{{housePrice}}</div>
                 <div>{{house.bedrooms}}bd, {{house.bathrooms}}ba</div>
                 <div>{{house.livingArea}}sqft</div>
                 <div class='house-status' v-if="house.status !== 'for sale'">{{house.status}}</div>
@@ -17,7 +17,7 @@
 </template>
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
-import { HouseModel } from "@/lib/house";
+import { HouseModel, shortPrice } from "@/lib/house";
 const { LTooltip } = require("vue2-leaflet");
 
 @Component({
@@ -28,6 +28,11 @@ const { LTooltip } = require("vue2-leaflet");
 export default class HouseMapTooltip extends Vue {
   @Prop(Object)
   house!: HouseModel;
+
+  get housePrice() {
+    if (!this.house || !this.house.price) return "";
+    return shortPrice(this.house.price);
+  }
 }
 </script>
 
@@ -45,6 +50,9 @@ export default class HouseMapTooltip extends Vue {
     vertical-align: top;
     width: 100px;
     display: inline-block;
+    .price {
+      font-weight: bold;
+    }
     .house-status {
       font-weight: bold;
     }

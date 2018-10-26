@@ -67,7 +67,32 @@ export function mapHouse(house: any): HouseModel {
   return htm;
 }
 
-export function shortPrice(price: number, priceUnit: string = "$"): string {
+export function fullPrice(price: number): string {
+  if (typeof price !== "number") return "--";
+  const p = `${price}`;
+  let p2 = "";
+  let offset = 0;
+  for (let i = p.length - 1; i >= 0; i -= 1) {
+    if (p[i] !== "-" && offset % 3 === 0 && offset > 0) {
+      p2 = `,${p2}`;
+      offset = 0;
+    }
+    p2 = p[i] + p2;
+    offset += 1;
+  }
+  return `$${p2}`;
+}
+
+export function percentage(decimalPercent: number): string {
+  if (decimalPercent === 0) return "--";
+  const p = (decimalPercent * 100.0).toFixed(1).replace(".0", "");
+  if (decimalPercent > 0) {
+    return `+${p}%`;
+  }
+  return `${p}%`;
+}
+
+export function shortPrice(price: number): string {
   let count = 0;
   let slimPrice = price;
   // 123 -> 123
@@ -100,5 +125,5 @@ export function shortPrice(price: number, priceUnit: string = "$"): string {
   } else {
     numeral = `${preDot}.${postRemoved}`;
   }
-  return `${priceUnit}${numeral}${unit}`;
+  return `$${numeral}${unit}`;
 }

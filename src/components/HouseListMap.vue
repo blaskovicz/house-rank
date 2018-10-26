@@ -474,6 +474,7 @@ export default class HouseListMap extends Vue {
   }
   .map-price-icon {
     z-index: 1;
+    font-weight: bold;
     background-color: #fdfdfd;
     display: block;
     width: 3.6em;

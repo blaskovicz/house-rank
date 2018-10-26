@@ -12,22 +12,7 @@
             </tr>
           </table>
         </b-popover>
-      </template>
-      <template slot="price" slot-scope="data">
-        ${{data.item.price}}
-      </template>
-      <template slot="priceAppraised" slot-scope="data">
-        ${{data.item.priceAppraised}}
       </template>   
-      <template slot="priceAssessed" slot-scope="data">
-        ${{data.item.priceAssessed}}
-      </template>
-      <template slot="taxPaid" slot-scope="data">
-        ${{data.item.taxPaid}}
-      </template>      
-      <!-- <template slot="zestimate" slot-scope="data">
-        ${{data.item.zestimate}}
-      </template>   -->
       <template slot="options" slot-scope="row">     
         <b-button @click="houseRemoved(row.item.zillowId)" size='sm' variant='primary'>Remove</b-button>
       </template>  
@@ -38,7 +23,7 @@
 <script lang="ts">
 import { Component, Prop, Vue, Emit, Watch } from "vue-property-decorator";
 import HouseThumbnail from "./HouseThumbnail.vue";
-import { HouseModel, mapHouse } from "@/lib/house";
+import { HouseModel, mapHouse, fullPrice } from "@/lib/house";
 import { scoreHouses } from "@/lib/house/score";
 
 const tableModelFields = [
@@ -53,11 +38,20 @@ const tableModelFields = [
   { key: "acreage", sortable: true },
   { key: "yearBuilt", sortable: true },
   { key: "livingArea", label: "Living Area", sortable: true },
-  { key: "price", sortable: true },
-  { key: "priceAppraised", label: "Appraised", sortable: true },
-  { key: "priceAssessed", label: "Assessed", sortable: true },
-  { key: "taxPaid", label: "Taxes", sortable: true },
-  { key: "daysListed", sortable: true },
+  { key: "price", sortable: true, formatter: fullPrice },
+  {
+    key: "priceAppraised",
+    label: "Appraised",
+    sortable: true,
+    formatter: fullPrice
+  },
+  {
+    key: "priceAssessed",
+    label: "Assessed",
+    sortable: true,
+    formatter: fullPrice
+  },
+  { key: "taxPaid", label: "Taxes", sortable: true, formatter: fullPrice },
   { key: "daysListed", sortable: true }, // TODO actual listing days based on listing history add/remove
   // { key: "zestimate", sortable: true },
   { key: "options", label: "", sortable: false }
