@@ -37,14 +37,12 @@ export const commonZillowHouseDataGraphqlUnwrapped = `
     }
   }
   property {
-    id
     daysOnZillow
     dateSold
     lastSoldPrice
     isZillowOwned
     city
     propertyTypeDimension
-    hdpTypeDimension
     listingTypeDimension
     featuredListingTypeDimension
     brokerIdDimension
