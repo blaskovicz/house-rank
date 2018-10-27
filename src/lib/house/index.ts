@@ -1,5 +1,6 @@
 import { parseUpperCamelCase } from "@/lib/string";
 import { findCategoryDetailsHomeFact } from "@/lib/house/zillow";
+import moment from "moment";
 
 export interface HouseModel {
   score: number;
@@ -42,7 +43,7 @@ export function mapHouse(house: any): HouseModel {
     raw: house,
     price: zp.price,
     yearBuilt: zp.yearBuilt,
-    acreage: +(zp.lotSize / 43560).toFixed(1),
+    acreage: acreage(zp.lotSize),
     daysListed: zp.daysOnZillow,
     bedrooms: +zp.bedrooms,
     bathrooms: +zp.bathrooms,
@@ -53,8 +54,8 @@ export function mapHouse(house: any): HouseModel {
     thubmnailCaption: zp.smallPhotos[0].caption,
     status: parseUpperCamelCase(zp.keystoneHomeStatus),
     livingArea: +zp.livingArea,
-    priceAssessed: +(+zp.taxAssessedValue).toFixed(0),
-    priceAppraised: +((zp.taxAssessedValue / 7) * 10).toFixed(0),
+    priceAssessed: priceAssessed(zp.taxAssessedValue),
+    priceAppraised: priceAppraised(zp.taxAssessedValue),
     // zestimate: +zp.zestimate.toFixed(0),
     type:
       findCategoryDetailsHomeFact(
@@ -65,6 +66,32 @@ export function mapHouse(house: any): HouseModel {
       ) || "-"
   };
   return htm;
+}
+
+export function dateYearMonth(date: any): string {
+  const d = moment(date);
+  if (!d.isValid()) return "--";
+  return d.format("YYYY/MM");
+}
+export function dateYearMonthDay(date: any): string {
+  const d = moment(date);
+  if (!d.isValid()) return "--";
+  return d.format("YYYY/MM/DD");
+}
+export function dateYear(date: any): string {
+  const d = moment(date);
+  if (!d.isValid()) return "--";
+  return d.format("YYYY");
+}
+
+export function acreage(lotSize: number): number {
+  return +(lotSize / 43560).toFixed(1);
+}
+export function priceAssessed(taxAssessedValue: number): number {
+  return +taxAssessedValue.toFixed(0);
+}
+export function priceAppraised(taxAssessedValue: number): number {
+  return +((taxAssessedValue / 7) * 10).toFixed(0);
 }
 
 export function fullPrice(price: number): string {

@@ -1,5 +1,70 @@
 import eventBus from "@/lib/events";
-
+const houseFragment = `
+zpid
+parcelId      
+latitude
+longitude
+lotSize
+zpid
+bedrooms
+bathrooms
+livingArea
+price
+yearBuilt
+homeType
+taxAssessedValue
+taxAssessedYear
+priceChange
+hoaFee
+propertyTaxRate
+lastSoldPrice
+currency
+address {
+  city
+  state
+  zipcode
+  streetAddress
+  community
+  subdivision
+  unitPrefix
+  unitNumber
+}            
+smallPhotos {
+  width
+  height
+  url
+  caption
+}
+hugePhotos {
+  width
+  height
+  url
+  caption
+}
+datePosted
+comingSoonOnMarketDate
+keystoneHomeStatus
+isNonOwnerOccupied       
+listingTypeDimension
+featuredListingTypeDimension      
+homeStatus
+dateSold
+daysOnZillow          
+isZillowOwned
+listingStatusChangeDate
+isPreforeclosureAuction
+isRecentStatusChange            
+listing_sub_type {
+  is_FSBO
+  is_FSBA
+  is_pending
+  is_newHome
+  is_foreclosure
+  is_bankOwned
+  is_forAuction
+  is_comingSoon
+} 
+`;
 export const commonZillowHouseDataGraphqlUnwrapped = `
   pricing {
     zpid
@@ -19,28 +84,10 @@ export const commonZillowHouseDataGraphqlUnwrapped = `
       priceChangeRate
       event
       source
-      sellerAgent {
-        photo {
-          url
-        }
-        profileUrl
-        name
-      }
-      buyerAgent {
-        photo {
-          url
-        }
-        profileUrl
-        name
-      }
       postingIsRental
     }
   }
   property {
-    daysOnZillow
-    dateSold
-    lastSoldPrice
-    isZillowOwned
     city
     propertyTypeDimension
     listingTypeDimension
@@ -48,27 +95,15 @@ export const commonZillowHouseDataGraphqlUnwrapped = `
     brokerIdDimension
     keystoneHomeStatus
     rentalApplicationsAcceptedType
-    yearBuilt
     boroughId
     brokerId
     brokerageName
     providerListingID
     postingProductType
     rentalRefreshTime
-    isFeatured
     rentalDateAvailable
     newConstructionType
-    comingSoonOnMarketDate
-    listingStatusChangeDate
-    isPreforeclosureAuction
-    taxAssessedValue
-    taxAssessedYear
-    priceChange
-    isNonOwnerOccupied
-    isRecentStatusChange
     forecast
-    homeStatus
-    homeType
     country
     description
     isUndisclosedAddress
@@ -81,34 +116,12 @@ export const commonZillowHouseDataGraphqlUnwrapped = `
     regionString
     streetAddress
     abbreviatedAddress
-    lotSize
     zestimate
     zestimateHighPercent
     zestimateLowPercent
     zestimateMinus30
     zipcode
-    zpid
-    price
-    yearBuilt
-    bedrooms
-    bathrooms
-    livingArea
-    hoaFee
-    propertyTaxRate
-    latitude
-    longitude
-    smallPhotos {
-      width
-      height
-      url
-      caption
-    }
-    hugePhotos {
-      width
-      height
-      url
-      caption
-    }    
+    ${houseFragment}
     homeFacts {
       categoryDetails {
         categoryGroupName
@@ -121,6 +134,15 @@ export const commonZillowHouseDataGraphqlUnwrapped = `
         }
       }
     }
+    nearbySales {
+      ${houseFragment}         
+    }
+    nearbyHomes {
+      ${houseFragment}
+    }
+    comps {
+      ${houseFragment}
+    }    
   }  
 `;
 export const commonZillowHouseDataGraphql = `
