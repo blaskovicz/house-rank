@@ -52,7 +52,7 @@
                 <div class='overflow-wrapper'>
                   <b-table :fields="priceHistoryFields" :items="pricing.priceHistory">
                       <template slot="priceChangeRate" slot-scope="data">
-                          <rate-change-formatter :rate="data.value">{{data.value}}</rate-change-formatter>
+                          <rate-change-formatter :rate="data.value"></rate-change-formatter>
                       </template>                    
                   </b-table>                               
                 </div>
@@ -61,62 +61,32 @@
                 <div class='overflow-wrapper'>
                   <b-table :fields="taxHistoryFields" :items="pricing.taxHistory">
                       <template slot="taxIncreaseRate" slot-scope="data">
-                        <rate-change-formatter :rate="data.value">{{data.value}}</rate-change-formatter>
+                        <rate-change-formatter :rate="data.value"></rate-change-formatter>
                       </template>
                       <template slot="valueIncreaseRate" slot-scope="data">
-                          <rate-change-formatter :rate="data.value">{{data.value}}</rate-change-formatter>
+                          <rate-change-formatter :rate="data.value"></rate-change-formatter>
                       </template>                                        
                   </b-table>
                 </div>
               </b-tab>
               <b-tab title="Comparables">
-                <div class='overflow-wrapper overflow-wrapper-y'>
-                  <b-table :fields="compsFields" :items="comps">
-                    <span
-                      slot="_photo"
-                      slot-scope="data"
-                    >
-                      <b-img
-                        :alt="data.value.caption"
-                        :width="200"
-                        :src="data.value.url"
-                      />                  
-                    </span>                
-                  </b-table>
-                </div>
+                <b-card-group columns>
+                  <house-comparison-card :house-a="extendedHouse" :house-b="comp" v-for="comp in comps" :key="comp.zpid">                    
+                  </house-comparison-card>
+                </b-card-group>
               </b-tab>
               <b-tab title="Nearby">
                 <b-card title="Sales">
-                  <div class='overflow-wrapper overflow-wrapper-y'>
-                    <b-table :fields="compsFields" :items="nearbySales">
-                      <span
-                        slot="_photo"
-                        slot-scope="data"
-                      >
-                        <b-img
-                          :alt="data.value.caption"
-                          :width="200"
-                          :src="data.value.url"
-                        />                  
-                      </span>                
-                    </b-table>
-                  </div>
+                  <b-card-group columns>
+                    <house-comparison-card :house-a="extendedHouse" :house-b="saleHome" v-for="saleHome in nearbySales" :key="saleHome.zpid">                    
+                    </house-comparison-card>
+                  </b-card-group>
                 </b-card>
                 <b-card title="Homes">
-                  <div class='overflow-wrapper overflow-wrapper-y'>
-                    <b-table :fields="compsFields" :items="nearbyHomes">
-                      <span
-                        slot="_photo"
-                        slot-scope="data"
-                      >
-                        <b-img
-                          :alt="data.value.caption"
-                          :width="200"
-                          :src="data.value.url"
-                        />                  
-                      </span>                
-                    </b-table>
-                  </div>
+                  <b-card-group columns>
+                    <house-comparison-card :house-a="extendedHouse" :house-b="home" v-for="home in nearbyHomes" :key="home.zpid">                    
+                    </house-comparison-card>
+                  </b-card-group>
                 </b-card>                
               </b-tab>                                  
           </b-tabs>
@@ -143,6 +113,7 @@
 <script lang="ts">
 import { Watch, Component, Prop, Vue, Emit } from "vue-property-decorator";
 import HouseCategoryDetails from "./HouseCategoryDetails.vue";
+import HouseComparisonCard from "./HouseComparisonCard.vue";
 import {
   HouseModel,
   mapHouse,
@@ -162,63 +133,11 @@ import Api, { commonZillowHouseDataGraphqlUnwrapped } from "@/lib/api";
 @Component({
   components: {
     RateChangeFormatter,
-    HouseCategoryDetails
+    HouseCategoryDetails,
+    HouseComparisonCard
   }
 })
 export default class HouseDetailsModal extends Vue {
-  compsFields = [
-    {
-      key: "_photo",
-      label: "",
-      sortable: false,
-      formatter: (value: any, key: any, item: any) => item.smallPhotos[0]
-    },
-    { key: "homeStatus", sortable: true, formatter: parseSnakeCase },
-    {
-      key: "dateSold",
-      sortable: true,
-      formatter: dateYearMonth
-    },
-    // { key: "type", sortable: true },
-    {
-      key: "address",
-      label: "Address",
-      sortable: true,
-      formatter: (item: any) =>
-        `${item.streetAddress} ${item.city}, ${item.state}`
-    },
-    { key: "bedrooms", sortable: true },
-    { key: "bathrooms", sortable: true },
-    { key: "lotSize", label: "Acreage", sortable: true, formatter: acreage },
-    { key: "yearBuilt", sortable: true },
-    { key: "livingArea", label: "Living Area", sortable: true },
-    { key: "price", sortable: true, formatter: fullPrice },
-    {
-      key: "_appraised",
-      label: "Appraised",
-      sortable: true,
-      formatter: (value: any, key: any, item: any) => {
-        return fullPrice(priceAppraised(item.taxAssessedValue));
-      }
-    },
-    {
-      key: "_assessed",
-      label: "Assessed",
-      sortable: true,
-      formatter: (value: any, key: any, item: any) => {
-        return fullPrice(priceAssessed(item.taxAssessedValue));
-      }
-    },
-    // { TODO: this s just a suggested propertyTaxRate, not actual
-    //   key: "_taxes",
-    //   label: "Taxes",
-    //   sortable: true,
-    //   formatter: (value: any, key: any, item: any) => {
-    //     return fullPrice(item.taxAssessedValue * item.propertyTaxRate);
-    //   }
-    // },
-    { key: "daysOnZillow", label: "Day Listed", sortable: true } // TODO actual listing days based on listing history add/remove
-  ];
   taxHistoryFields = [
     {
       key: "time",
@@ -392,9 +311,10 @@ export default class HouseDetailsModal extends Vue {
 }
 .house-description {
   text-align: left;
-  margin-top: 10px;
+  margin-top: 20px;
   max-height: 10em;
   overflow-y: auto;
+  margin-bottom: 20px;
 }
 .overflow-wrapper {
   overflow-x: auto;

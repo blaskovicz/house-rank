@@ -19,6 +19,7 @@ export interface HouseModel {
   bedrooms: number;
   bathrooms: number;
   price: number;
+  lastSoldPrice?: number;
   // zestimate: number;
   priceAppraised: number;
   priceAssessed: number;
@@ -42,6 +43,7 @@ export function mapHouse(house: any): HouseModel {
     scoreExplanation: [],
     raw: house,
     price: zp.price,
+    lastSoldPrice: zp.lastSoldPrice ? +zp.lastSoldPrice : undefined,
     yearBuilt: zp.yearBuilt,
     acreage: acreage(zp.lotSize),
     daysListed: zp.daysOnZillow,
@@ -85,33 +87,25 @@ export function dateYear(date: any): string {
 }
 
 export function acreage(lotSize: number): number {
+  if (typeof lotSize !== "number") return 0;
   return +(lotSize / 43560).toFixed(1);
 }
 export function priceAssessed(taxAssessedValue: number): number {
+  if (typeof taxAssessedValue !== "number") return 0;
   return +taxAssessedValue.toFixed(0);
 }
 export function priceAppraised(taxAssessedValue: number): number {
+  if (typeof taxAssessedValue !== "number") return 0;
   return +((taxAssessedValue / 7) * 10).toFixed(0);
 }
 
 export function fullPrice(price: number): string {
   if (typeof price !== "number") return "--";
-  const p = `${price}`;
-  let p2 = "";
-  let offset = 0;
-  for (let i = p.length - 1; i >= 0; i -= 1) {
-    if (p[i] !== "-" && offset % 3 === 0 && offset > 0) {
-      p2 = `,${p2}`;
-      offset = 0;
-    }
-    p2 = p[i] + p2;
-    offset += 1;
-  }
-  return `$${p2}`;
+  return `$${price.toLocaleString()}`;
 }
 
 export function percentage(decimalPercent: number): string {
-  if (decimalPercent === 0) return "--";
+  if (typeof decimalPercent !== "number" || decimalPercent === 0) return "--";
   const p = (decimalPercent * 100.0).toFixed(1).replace(".0", "");
   if (decimalPercent > 0) {
     return `+${p}%`;
@@ -120,6 +114,7 @@ export function percentage(decimalPercent: number): string {
 }
 
 export function shortPrice(price: number): string {
+  if (typeof price !== "number") return "--";
   let count = 0;
   let slimPrice = price;
   // 123 -> 123
