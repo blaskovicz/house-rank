@@ -101,13 +101,23 @@
       <l-tile-layer :url="url" />
 
       <!-- our list houses -->
-      <l-marker :icon="house.icon" v-for="house in mapModel" :lat-lng="house.marker" :key="house.house.zpid" @mouseover="updateNextImage" @click="openDetails(house.house)">
-        <house-map-tooltip :house="house.house"></house-map-tooltip>      
+      <l-marker :icon="house.icon" v-for="house in mapModel" :lat-lng="house.marker" :key="house.house.zpid" @mouseover="updateNextImage" @click="isMobile ? updateNextImage() : openDetails(house.house)">
+        <l-tooltip v-if="!isMobile">
+          <house-map-tooltip :house="house.house"></house-map-tooltip>
+        </l-tooltip>
+        <l-popup v-else>
+          <house-map-tooltip :house="house.house"></house-map-tooltip>
+        </l-popup>
       </l-marker>
 
       <!-- browsing houses -->
-      <l-marker :icon="house.icon" v-for="house in visibleHouses" :lat-lng="house.marker" :key="house.house.zpid" @mouseover="updateNextImage" @click="openDetails(house.house)">
-        <house-map-tooltip :house="house.house"></house-map-tooltip>
+      <l-marker :icon="house.icon" v-for="house in visibleHouses" :lat-lng="house.marker" :key="house.house.zpid" @mouseover="updateNextImage" @click="isMobile ? updateNextImage() : openDetails(house.house)">
+        <l-tooltip v-if="!isMobile">
+          <house-map-tooltip :house="house.house"></house-map-tooltip>
+        </l-tooltip>
+        <l-popup v-else>
+          <house-map-tooltip :house="house.house"></house-map-tooltip>
+        </l-popup>
       </l-marker>      
     </l-map>
   </div>
@@ -117,11 +127,12 @@
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import L from "leaflet";
 import { mapHouse, HouseModel, shortPrice } from "@/lib/house";
-const { LMap, LTileLayer, LMarker } = require("vue2-leaflet");
+const { LMap, LTileLayer, LMarker, LTooltip, LPopup } = require("vue2-leaflet");
 import LocationApi, { Location } from "@/lib/location";
 import eventBus from "@/lib/events";
 import debounce from "debounce";
 import Api from "@/lib/api";
+import { isMobile } from "@/lib/mobile";
 import HouseMapTooltip from "./HouseMapTooltip.vue";
 import { parseSnakeCase } from "@/lib/string";
 import escapeHtml from "escape-html";
@@ -164,11 +175,14 @@ const defaultFormFilters = {
     LMap,
     LTileLayer,
     LMarker,
+    LTooltip,
+    LPopup,
     HouseMapTooltip
   }
 })
 export default class HouseListMap extends Vue {
   private locationState = LocationApi.state;
+  private isMobile: boolean = isMobile();
   private zoom: number = 12;
   private center: L.LatLng = L.latLng(47.41322, -1.219482);
 
@@ -182,6 +196,7 @@ export default class HouseListMap extends Vue {
   private mapModel: { marker: L.LatLng; house: HouseModel }[] = [];
   private url: string = "https://{s}.tile.osm.org/{z}/{x}/{y}.png";
   private formFilters = {};
+
   resetFiltersToSaved() {
     let filters: any;
     if (window.localStorage) {
