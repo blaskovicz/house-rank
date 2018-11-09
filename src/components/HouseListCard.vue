@@ -213,6 +213,7 @@ $white-shadow: 1px 1px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff,
 $black-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000,
   -1px 1px 0 #000, 1px 1px 0 #000;
 .house-card {
+  min-height: 10rem;
   width: 15rem;
   // min-width: 15rem;
   // max-width: 20rem;

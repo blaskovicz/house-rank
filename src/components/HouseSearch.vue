@@ -19,7 +19,7 @@
           :key="house.zpid"
           :house="house"
           addable
-          @add="addHouse(house)"
+          @add="selectHouse(house)"
         >
         </house-list-card>
       </b-card-group>
@@ -82,8 +82,9 @@ export default class HouseSearch extends Vue {
   // ];
 
   @Emit("house-selected")
-  async selectHouse(zpid: any) {
-    return zpid;
+  selectHouse(house: HouseModel) {
+    this.cancelSearch();
+    return house.zpid;
   }
   get showClear(): boolean {
     return this.tableModel.length > 0 || this.city !== "" || this.road !== "";
@@ -125,7 +126,6 @@ export default class HouseSearch extends Vue {
 <style scoped lang="scss">
 #results {
   overflow-y: auto;
-  max-height: 20em;
   margin-bottom: 2em;
 }
 #search-controls {
