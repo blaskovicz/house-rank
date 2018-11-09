@@ -103,9 +103,9 @@ export default class HouseRankApp extends Vue {
       (h: any) => h.zpid === this.house.zpid
     );
     if (found) {
-      return "Remove from Ignored List";
+      return "Un-Hide House";
     }
-    return "Add to Ignored List";
+    return "Hide House";
   }
   houseActionAlt(house: HouseModel) {
     if (!this.house) {

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div id='house-list-map'>
     <b-btn v-b-modal.filterControls>Map Filters...</b-btn>
     <b-modal no-fade id="filterControls" title="Map Filters" @hide="resetFiltersToSaved" @ok="saveFilters">
       <b-form v-if="formFilters && formFilters._version">
@@ -381,7 +381,7 @@ export default class HouseListMap extends Vue {
       ]);
 
       this.visibleHouses = (resData.zillowMapSearch || [])
-        .filter((h: any) => !listZpids.has(h.zpid))
+        .filter((h: any) => h && !listZpids.has(h.zpid)) // some properties are null
         .map((h: any) => {
           h.status = parseSnakeCase(h.homeStatus);
           return {
@@ -465,15 +465,23 @@ export default class HouseListMap extends Vue {
     border-width: 1px;
   }
   &.owned {
-    background: #2e0799;
+    background: #8d65fd;
+    z-index: 3 !important;
   }
   &:not(.owned) {
-    .for-sale {
-      background: green;
+    &.recently-sold {
+      background: #e9ff1f;
+      border-color: #000;
+    }
+    &.pending {
+      border-color: #000;
+      &:hover {
+        border-color: #fff;
+      }
     }
   }
   .map-price-icon {
-    z-index: 1;
+    z-index: 4 !important;
     font-weight: bold;
     background-color: #fdfdfd;
     display: block;
@@ -490,6 +498,9 @@ export default class HouseListMap extends Vue {
   .filter-reset {
     float: right;
   }
+}
+#house-list-map {
+  margin-bottom: 10px;
 }
 </style>
 

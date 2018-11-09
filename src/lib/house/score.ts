@@ -1,6 +1,10 @@
 import { HouseModel } from "@/lib/house";
 import { parseUpperCamelCase } from "@/lib/string";
 
+/* sort by score, ascending */
+export function scoreCompare(houseA: HouseModel, houseB: HouseModel): number {
+  return houseB.score - houseA.score;
+}
 export function scoreHouses(houses: HouseModel[]) {
   if (!houses || houses.length === 0) return;
 

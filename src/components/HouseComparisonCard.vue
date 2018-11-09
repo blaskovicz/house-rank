@@ -22,12 +22,12 @@
             </div>
             <div>
                 <rate-change-formatter :rate="bedroomDelta">
-                    {{bedrooms}} beds
+                    {{bedrooms}} bd
                 </rate-change-formatter>
             </div>
             <div>
                 <rate-change-formatter :rate="bathroomDelta">
-                    {{bathrooms}} baths
+                    {{bathrooms}} ba
                 </rate-change-formatter>
             </div>                        
             <div>
@@ -94,11 +94,11 @@ export default class HouseComparisonCard extends Vue {
   }
   get status(): string {
     let status = parseSnakeCase(this.houseB.homeStatus);
-    if (status === "for sale") {
+    if (status === "for sale" || status === "pending") {
       status += ` for ${this.houseB.daysOnZillow} day${
         this.houseB.daysOnZillow !== 1 ? "s" : ""
       }`;
-    } else if (status.includes("sold")) {
+    } else if (status.includes("sold") || status.includes("pending")) {
       status += ` ${dateYearMonth(this.houseB.dateSold)}`;
     }
     return status;

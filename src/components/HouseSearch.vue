@@ -12,74 +12,86 @@
         <b-button id='cancel-button' v-if="showClear" @click="cancelSearch" size='sm' variant="default">Clear</b-button>
       </b-form>   
     </div>
-    <div id='results' v-show='results.length > 0'>
-      <b-table striped hover fixed :items="results" :fields="fields">
+    <div id='results' v-show='tableModel.length > 0'>
+      <b-card-group columns>
+        <house-list-card
+          v-for="house in tableModel"
+          :key="house.zpid"
+          :house="house"
+          addable
+          @add="addHouse(house)"
+        >
+        </house-list-card>
+      </b-card-group>
+      <!-- <b-table striped hover fixed :items="results" :fields="fields">
         <house-thumbnail slot="image" slot-scope="data" :house="data.item"></house-thumbnail>                                     
         <template slot="options" slot-scope="data">
           <b-button @click="selectHouse(data.item.zillowId)" size='sm' variant='primary'>Add to List</b-button>
         </template>
-      </b-table>
+      </b-table> -->
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue, Emit } from "vue-property-decorator";
-import HouseThumbnail from "./HouseThumbnail.vue";
+// import HouseThumbnail from "./HouseThumbnail.vue";
 import Api, { commonZillowHouseDataGraphql } from "@/lib/api";
 import { mapHouse, HouseModel, fullPrice } from "@/lib/house";
+import HouseListCard from "./HouseListCard.vue";
 
 @Component({
   components: {
-    HouseThumbnail
+    // HouseThumbnail
+    HouseListCard
   }
 })
 export default class HouseSearch extends Vue {
   city: string = "";
   road: string = "";
-  results: HouseModel[] = [];
-  fields: any[] = [
-    { key: "image", label: "", sortable: false },
-    { key: "type", sortable: true },
-    { key: "streetAddress", label: "Address", sortable: true },
-    { key: "city", sortable: true },
-    { key: "state", sortable: true },
-    { key: "bedrooms", sortable: true },
-    { key: "bathrooms", sortable: true },
-    { key: "acreage", sortable: true },
-    { key: "yearBuilt", sortable: true },
-    { key: "livingArea", label: "Living Area", sortable: true },
-    { key: "price", sortable: true, formatter: fullPrice },
-    {
-      key: "priceAppraised",
-      label: "Appraised",
-      sortable: true,
-      formatter: fullPrice
-    },
-    {
-      key: "priceAssessed",
-      label: "Assessed",
-      sortable: true,
-      formatter: fullPrice
-    },
-    { key: "taxPaid", label: "Taxes", sortable: true, formatter: fullPrice },
-    { key: "daysListed", sortable: true },
-    { key: "daysListed", sortable: true }, // TODO actual listing days based on listing history add/remove
-    // { key: "zestimate", sortable: true },
-    { key: "options", label: "", sortable: false }
-  ];
+  tableModel: HouseModel[] = [];
+  // fields: any[] = [
+  //   { key: "image", label: "", sortable: false },
+  //   { key: "type", sortable: true },
+  //   { key: "streetAddress", label: "Address", sortable: true },
+  //   { key: "city", sortable: true },
+  //   { key: "state", sortable: true },
+  //   { key: "bedrooms", sortable: true },
+  //   { key: "bathrooms", sortable: true },
+  //   { key: "acreage", sortable: true },
+  //   { key: "yearBuilt", sortable: true },
+  //   { key: "livingArea", label: "Living Area", sortable: true },
+  //   { key: "price", sortable: true, formatter: fullPrice },
+  //   {
+  //     key: "priceAppraised",
+  //     label: "Appraised",
+  //     sortable: true,
+  //     formatter: fullPrice
+  //   },
+  //   {
+  //     key: "priceAssessed",
+  //     label: "Assessed",
+  //     sortable: true,
+  //     formatter: fullPrice
+  //   },
+  //   { key: "taxPaid", label: "Taxes", sortable: true, formatter: fullPrice },
+  //   { key: "daysListed", sortable: true },
+  //   { key: "daysListed", sortable: true }, // TODO actual listing days based on listing history add/remove
+  //   // { key: "zestimate", sortable: true },
+  //   { key: "options", label: "", sortable: false }
+  // ];
 
   @Emit("house-selected")
   async selectHouse(zpid: any) {
     return zpid;
   }
   get showClear(): boolean {
-    return this.results.length > 0 || this.city !== "" || this.road !== "";
+    return this.tableModel.length > 0 || this.city !== "" || this.road !== "";
   }
   cancelSearch() {
     this.city = "";
     this.road = "";
-    this.results = [];
+    this.tableModel = [];
   }
   @Emit()
   responseError(e: any) {
@@ -102,7 +114,7 @@ export default class HouseSearch extends Vue {
     }`,
         { address: this.road, citystatezip: this.city }
       );
-      this.results = resData.zillowAddressSearch.map(mapHouse);
+      this.tableModel = resData.zillowAddressSearch.map(mapHouse);
     } catch (e) {
       this.responseError(e);
     }
